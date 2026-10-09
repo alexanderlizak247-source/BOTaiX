@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#100d0c">
+    <meta name="description" content="A private, cinematic collection of romantic scene concepts.">
+    <title>Alex &amp; Cinima — Private Gallery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <div class="ambient ambient-one"></div>
+    <div class="ambient ambient-two"></div>
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Cinima home">
+        <span class="brand-mark">C</span>
+        <span>CINIMA<span class="brand-dot">.</span></span>
+      </a>
+      <nav class="main-nav" aria-label="Main navigation">
+        <a class="nav-link" href="#room">Room</a>
+        <a class="nav-link active" href="#gallery">Gallery</a>
+        <a class="nav-link" href="#about">Our story</a>
+      </nav>
+      <button class="private-toggle" id="private-toggle" type="button" aria-pressed="false">
+        <span class="lock-icon" aria-hidden="true">◇</span>
+        <span id="private-label">Private mode</span>
+        <span class="toggle-track"><span></span></span>
+      </button>
+    </header>
+
+    <main>
+      <section class="hero" id="about">
+        <div class="hero-copy">
+          <div class="eyebrow"><span class="eyebrow-line"></span> A PRIVATE COLLECTION <span class="eyebrow-line"></span></div>
+          <h1>Alex <em>&amp;</em><br>Cinima</h1>
+          <p class="hero-subtitle">Alex, your private little world: made for the moments only we imagine.</p>
+          <div class="hero-actions">
+            <a class="primary-button" href="#gallery">Explore the gallery <span aria-hidden="true">↗</span></a>
+            <span class="curated-note"><span class="status-dot"></span> Curated for two</span>
+          </div>
+        </div>
+        <div class="hero-art" aria-label="Abstract artwork in warm sunset colors">
+          <div class="hero-art-grain"></div>
+          <div class="hero-sun"></div>
+          <div class="hero-orbit orbit-one"></div>
+          <div class="hero-orbit orbit-two"></div>
+          <div class="hero-arch"></div>
+          <div class="hero-art-caption"><span>01 / PRIVATE REVERIE</span><span>✦</span></div>
+          <div class="hero-stamp">A<br><i>&amp;</i><br>C</div>
+        </div>
+        <div class="hero-bottom">
+          <span>SCENES TO GET LOST IN</span>
+          <span>SCROLL TO DISCOVER <span class="scroll-arrow">↓</span></span>
+          <span>EST. JUST NOW</span>
+        </div>
+      </section>
+
+      <section class="room-section" id="room">
+        <div class="section-heading room-heading">
+          <div>
+            <div class="eyebrow left"><span class="eyebrow-line"></span> THE SIMULATION</div>
+            <h2>Step into <em>our room</em></h2>
+          </div>
+          <p class="section-description">A private, fictional space to set the scene<br>and say what you want to happen next.</p>
+        </div>
+        <div class="room-layout">
+          <aside class="companion-panel" aria-label="Companion appearance settings">
+            <div class="panel-label">YOUR COMPANION <span>18+</span></div>
+            <div class="companion-preview" id="companion-preview">
+              <span class="preview-halo"></span><span class="preview-head"></span><span class="preview-hair"></span><span class="preview-body"></span>
+              <span class="preview-label" id="preview-label">Cinima</span>
+            </div>
+            <label class="setting-label" for="heritage-select">Heritage &amp; complexion</label>
+            <select id="heritage-select">
+              <option value="warm-olive">Middle Eastern / North African</option>
+              <option value="deep">Black / African diaspora</option>
+              <option value="golden">East Asian</option>
+              <option value="brown">South Asian</option>
+              <option value="copper">Indigenous</option>
+              <option value="sun-kissed">Latina / Latin American</option>
+              <option value="fair">White / European</option>
+              <option value="mixed">Mixed heritage</option>
+              <option value="custom">Custom description</option>
+            </select>
+            <label class="setting-label custom-heritage-label" for="custom-heritage">Describe complexion or heritage</label>
+            <input id="custom-heritage" class="custom-heritage-input" type="text" maxlength="60" placeholder="Your own description">
+            <label class="setting-label" for="hair-select">Hair color</label>
+            <select id="hair-select">
+              <option value="espresso">Espresso black</option>
+              <option value="chocolate">Chocolate brown</option>
+              <option value="chestnut">Chestnut</option>
+              <option value="auburn">Auburn</option>
+              <option value="copper-hair">Copper red</option>
+              <option value="honey">Honey blonde</option>
+              <option value="platinum">Platinum blonde</option>
+              <option value="silver">Silver</option>
+              <option value="rose">Rose pink</option>
+              <option value="blue-hair">Midnight blue</option>
+            </select>
+            <label class="setting-label" for="body-select">Build</label>
+            <select id="body-select">
+              <option value="athletic">Athletic</option>
+              <option value="soft">Soft &amp; curvy</option>
+              <option value="petite">Petite</option>
+              <option value="tall">Tall &amp; statuesque</option>
+              <option value="plus">Plus-size</option>
+              <option value="lean">Lean</option>
+            </select>
+            <label class="setting-label" for="eyes-select">Eye color</label>
+            <select id="eyes-select">
+              <option value="brown-eyes">Deep brown</option>
+              <option value="amber-eyes">Amber</option>
+              <option value="hazel-eyes">Hazel</option>
+              <option value="green-eyes">Green</option>
+              <option value="blue-eyes">Blue</option>
+              <option value="gray-eyes">Gray</option>
+            </select>
+            <label class="setting-label" for="setting-select">Room setting</label>
+            <select id="setting-select">
+              <option value="penthouse">Penthouse after dark</option>
+              <option value="fireplace">Fireside lounge</option>
+              <option value="candlelight">Candlelit suite</option>
+              <option value="rooftop">Rooftop in the city</option>
+              <option value="seaside">Seaside hideaway</option>
+              <option value="noir">Noir listening room</option>
+            </select>
+            <label class="setting-label" for="scene-mode">Scene</label>
+            <select id="scene-mode">
+              <option value="solo">Just Cinima</option>
+              <option value="trio" selected>Three-person scene</option>
+            </select>
+            <label class="setting-label" for="character-name">Name (optional)</label>
+            <input id="character-name" type="text" maxlength="32" value="Cinima" placeholder="Give her a name">
+            <button class="randomize-button" id="randomize-button" type="button">✳  Surprise me with a look</button>
+            <p class="local-note">Choices stay in this browser. Character art is abstract, not a photo.</p>
+          </aside>
+
+          <div class="simulation-panel">
+            <div class="room-scene room-mode-trio" id="room-scene">
+              <div class="room-window"><span class="window-moon"></span><span class="window-skyline"></span></div>
+              <div class="room-lamp"></div>
+              <div class="room-sofa"></div>
+              <div class="scene-mood"><span class="status-dot"></span> PRIVATE SIMULATION <span class="mood-divider">/</span> <span id="setting-caption">PENTHOUSE, AFTER DARK</span></div>
+              <div class="room-character" id="room-character"><span class="character-aura"></span><span class="character-hair"></span><span class="character-head"></span><span class="character-neck"></span><span class="character-torso"></span><span class="character-eye left-eye"></span><span class="character-eye right-eye"></span></div>
+              <div class="room-character guest-character guest-one" aria-label="Fictional adult guest Ava"><span class="character-aura"></span><span class="character-hair"></span><span class="character-head"></span><span class="character-neck"></span><span class="character-torso"></span><span class="character-eye left-eye"></span><span class="character-eye right-eye"></span></div>
+              <div class="room-character guest-character guest-two" aria-label="Fictional adult guest Lena"><span class="character-aura"></span><span class="character-hair"></span><span class="character-head"></span><span class="character-neck"></span><span class="character-torso"></span><span class="character-eye left-eye"></span><span class="character-eye right-eye"></span></div>
+              <div class="guest-name guest-name-one">Ava <span>25+</span></div>
+              <div class="guest-name guest-name-two">Lena <span>25+</span></div>
+              <div class="character-caption"><span id="character-caption-name">Cinima</span><span id="character-caption-look">Middle Eastern / North African · Espresso black · Athletic</span></div>
+            </div>
+            <div class="simulation-chat">
+              <div class="chat-header"><span><span class="status-dot"></span> IN THE ROOM</span><span class="local-badge">LOCAL DEMO</span></div>
+              <div class="chat-messages" id="chat-messages" aria-live="polite">
+                <div class="chat-message companion-message"><span class="message-name" id="message-name">Cinima</span><p>Alex, I brought company. Ava and Lena are both adults, both fictional, and very much in on the plan. I’ll let them introduce themselves; you set the pace.</p></div>
+                <div class="chat-message guest-message"><span class="message-name">Ava · 25+</span><p>Hi, Alex. I vote we start with drinks, good music, and absolutely no rushing the evening.</p></div>
+                <div class="chat-message guest-message"><span class="message-name">Lena · 25+</span><p>Agreed. We can keep it playful and check that everyone’s comfortable as we go. What kind of mood do you want?</p></div>
+              </div>
+              <form class="chat-form" id="chat-form">
+                <label class="visually-hidden" for="scene-prompt">Tell the simulation what you want</label>
+                <input id="scene-prompt" type="text" maxlength="500" placeholder="Set the scene or tell me what you want…" autocomplete="off" required>
+                <button type="submit" aria-label="Send message">↑</button>
+              </form>
+              <p class="simulation-disclaimer">All characters are fictional adults (25+). Text-only prototype; no AI service is connected.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="gallery-section" id="gallery">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow left"><span class="eyebrow-line"></span> THE COLLECTION</div>
+            <h2>Scenes for <em>us</em></h2>
+          </div>
+          <p class="section-description">A moodboard for the moments we imagine,<br>and the ones we make our own.</p>
+        </div>
+
+        <div class="toolbar">
+          <div class="filters" role="group" aria-label="Filter scenes">
+            <button class="filter-chip selected" type="button" data-filter="All">All scenes <span>12</span></button>
+            <button class="filter-chip" type="button" data-filter="Romance">Romance</button>
+            <button class="filter-chip" type="button" data-filter="After dark">After dark</button>
+            <button class="filter-chip" type="button" data-filter="Daydream">Daydream</button>
+            <button class="filter-chip favorites-filter" type="button" data-filter="Favorites">♡ Favorites</button>
+          </div>
+          <button class="sort-button" id="shuffle-button" type="button"><span aria-hidden="true">✳</span> Surprise me</button>
+        </div>
+
+        <div class="gallery-grid" id="gallery-grid" aria-live="polite"></div>
+        <div class="gallery-footer">
+          <span id="gallery-count">12 scenes</span>
+          <span>Made of imagination <span class="footer-sparkle">✦</span></span>
+        </div>
+      </section>
+
+      <section class="closing-note">
+        <span class="closing-mark">✦</span>
+        <p>Not a picture of us.<br><em>A feeling that is.</em></p>
+        <span class="closing-sub">A LITTLE SPACE FOR A LOT OF FEELING</span>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <a class="brand footer-brand" href="#"><span class="brand-mark">C</span><span>CINIMA<span class="brand-dot">.</span></span></a>
+      <span>MADE WITH A LITTLE MAGIC</span>
+      <span>© 2026 ALEX &amp; CINIMA</span>
+    </footer>
+
+    <dialog class="scene-dialog" id="scene-dialog">
+      <button class="dialog-close" id="dialog-close" type="button" aria-label="Close scene">×</button>
+      <div class="dialog-art" id="dialog-art"></div>
+      <div class="dialog-copy">
+        <span class="dialog-category" id="dialog-category"></span>
+        <h2 id="dialog-title"></h2>
+        <p id="dialog-description"></p>
+        <button class="dialog-favorite" id="dialog-favorite" type="button"></button>
+      </div>
+    </dialog>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
