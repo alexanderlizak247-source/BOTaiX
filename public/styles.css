@@ -159,6 +159,8 @@ h1 em { color: var(--gold); font-size: .65em; font-weight: 500; }
 .private-library { margin: 0 4.5%; }
 .image-upload-button { display: inline-flex; align-items: center; gap: 8px; padding: 12px 16px; border: 1px solid rgba(203, 167, 125, .42); background: rgba(203, 167, 125, .1); color: #ecd6bd; font-size: 10px; cursor: pointer; }
 .image-upload-button:hover { background: rgba(203, 167, 125, .18); }
+.media-backup-button { margin: 8px 0 0 8px; font-family: var(--sans); }
+.media-backup-button:disabled { cursor: wait; opacity: .6; }
 .private-library-status { margin: 12px 0 18px; color: #93877c; font-size: 9px; line-height: 1.55; }
 .private-image-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
 .private-image-card { min-width: 0; border: 1px solid var(--line); background: rgba(255, 255, 255, .018); }

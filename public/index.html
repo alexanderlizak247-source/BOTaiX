@@ -393,8 +393,11 @@
         <div class="private-library">
           <label class="image-upload-button" for="private-image-upload">＋ Add images</label>
           <input class="visually-hidden" id="private-image-upload" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple>
+          <label class="image-upload-button image-folder-upload-button" for="private-image-folder-upload">＋ Add images from a folder</label>
+          <input class="visually-hidden" id="private-image-folder-upload" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple webkitdirectory directory>
           <label class="image-upload-button video-upload-button" for="private-video-upload">＋ Add videos</label>
           <input class="visually-hidden" id="private-video-upload" type="file" accept="video/mp4,video/webm,video/quicktime" multiple>
+          <button class="image-upload-button media-backup-button" id="private-media-backup" type="button">↓ Back up all media to a folder</button>
           <p class="private-library-status" id="private-library-status" role="status" aria-live="polite">Images and videos stay in this browser’s private IndexedDB library; they are not uploaded to Cinima’s server or sent to the chat AI. Cinima will request persistent browser storage to reduce automatic cleanup. The app has no remove button; clearing browser site data can still erase this library, so keep a separate backup. Rename a file to set a private label; this does not change its image or video. Maximum 10 MB per image and 100 MB per video. Browser storage is not encrypted.</p>
           <p class="private-library-status" id="private-storage-status" role="status" aria-live="polite">Requesting persistent browser storage…</p>
           <div class="private-image-grid" id="private-image-grid" aria-live="polite"></div>
