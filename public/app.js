@@ -49,6 +49,7 @@ const providerBadge = document.querySelector('#provider-badge');
 const providerStatus = document.querySelector('#provider-status');
 const providerConversation = [];
 let activeCompanionProfile = companionProfiles[0];
+let localReplyCount = 0;
 const appearanceControls = {
   heritage: document.querySelector('#heritage-select'),
   hair: document.querySelector('#hair-select'),
@@ -196,84 +197,68 @@ function addChatMessage(text, speaker) {
 function getDemoReply(request) {
   const prompt = request.toLowerCase();
   const setting = appearanceControls.setting.options[appearanceControls.setting.selectedIndex].text.toLowerCase();
+  const name = appearanceControls.name.value.trim() || 'Cinima';
+  const choose = (replies) => {
+    const reply = replies[localReplyCount % replies.length];
+    localReplyCount += 1;
+    return reply;
+  };
 
   if (/\bstop\b|\bpause\b|\bno\b|not comfortable|uncomfortable|slow down/.test(prompt)) {
-    return 'Absolutely. We stop here—no pressure to continue. Would you like to change the scene, take a pause, or end it?';
+    return 'Absolutely. We stop here—no pressure, no questions. Would you like to pause, change the subject, or end the scene?';
   }
 
-  if (teasingMode.checked) {
-    if (/cum|orgasm|finish|dirty.?talk|turn me on/.test(prompt)) {
-      return 'Mmm, you do like a little anticipation. I can keep the banter deliciously teasing and the scene non-graphic—but you set the pace. Want me to keep flirting, soften the mood, or change direction?';
-    }
-    if (/flirt|tease|compliment|blush/.test(prompt)) {
-      return 'Careful, Alex—you keep looking at me like that and I might start enjoying the attention. I’ll keep you guessing, one charming little moment at a time. Shall I keep teasing, or should we change the mood?';
-    }
-    if (enhancedPacing.checked) {
-      return `The ${setting} glows softly as I give you a knowing smile. “You’re fun to tease, Alex—but you’re in charge of the pace. Want a little more playful banter, a slow dance, or a change of scene?”`;
-    }
-    return 'That look suits you, Alex. I can keep things playful and teasing, or switch to something softer—your call.';
+  const flirting = teasingMode.checked;
+  const moodLead = enhancedPacing.checked
+    ? `The ${setting} glows around us. `
+    : '';
+
+  if (/cum|orgasm|finish|dirty.?talk|turn me on|freaky|naughty/.test(prompt) && flirting) {
+    return choose([
+      `Mmm, bold request, ${name}. I can make the tension delicious and leave the details to your imagination. Tell me what kind of teasing gets that smile out of you.`,
+      `You do like to test my composure, ${name}. Let's keep it suggestive: a lingering look, a wicked little grin, and all the anticipation. What should I tease you about first?`,
+      `Careful, ${name}—ask me like that and I might make you work for every hint. We’ll keep it playful, grown-up, and non-graphic. Your move.`
+    ]);
   }
 
-  if (enhancedPacing.checked) {
-    if (document.querySelector('#scene-mode').value === 'trio') {
-      if (/music|song|dance|playlist/.test(prompt)) {
-        return `The first notes warm the ${setting}. Ava offers you her hand; Lena smiles and saves the next song. Cinima: “Your choice, Alex—dance, talk, or surprise us.”`;
-      }
-      if (/cozy|quiet|candle|fire|soft|relax|slow/.test(prompt)) {
-        return `The ${setting} settles into candlelight and an easy hush. Lena takes care of the music while Ava checks in with a warm smile. Cinima: “Comfy for everyone? We can linger here or change the mood.”`;
-      }
-      if (/surprise|choose|anything|you decide/.test(prompt)) {
-        return `Ava picks a mellow track; Lena brings over drinks, and the ${setting} glows with city light. Cinima: “A charming start. What sounds best next: a dance, a story, or a little playful banter?”`;
-      }
-      return `The ${setting} comes alive with soft light and an inviting soundtrack. Ava and Lena trade a conspiratorial grin, then leave the next move to you. Cinima: “Shall we make this a dance, a conversation, or something else?”`;
-    }
-    if (/music|song|dance|playlist/.test(prompt)) {
-      return `A low, velvet-smooth track fills the ${setting}, and the city lights keep time beyond the window. Cinima: “One song, one unhurried dance—unless you’d rather choose the next scene.”`;
-    }
-    if (/cozy|quiet|candle|fire|soft|relax|slow/.test(prompt)) {
-      return `The ${setting} softens into warm light and a comfortable quiet. Cinima: “No rush. We can stay with this moment, or I can set up a new little surprise.”`;
-    }
-    if (/city|roof|penthouse|rain|night|view/.test(prompt)) {
-      return `Rain and neon blur beyond the ${setting}; inside, the music turns low and the conversation gets its own spotlight. Cinima: “What shall we focus on: the view, the music, or a story?”`;
-    }
-    if (/surprise|choose|anything|you decide/.test(prompt)) {
-      return `I pick the ${setting}, a favorite song, and a view worth pausing for. Cinima: “There—our opening scene. Want a playful challenge, a slow dance, or a change of direction?”`;
-    }
-    if (/romance|date|sweet|tender|affection/.test(prompt)) {
-      return `The ${setting} glows softly as I make room for an unhurried, affectionate moment. Cinima: “Tell me what feels right, and I’ll follow your lead.”`;
-    }
-    return `The ${setting} settles around us: warm light, a little music, and a moment with room to unfold. Cinima: “I’m listening, Alex. Pick a detail and I’ll carry the scene forward.”`;
+  if (/dance|music|song|playlist/.test(prompt)) {
+    return choose([
+      `${moodLead}A slow beat slips into the room. ${name}: “Come claim this song with me—or tell me what you had in mind when you asked for that music.”`,
+      `${moodLead}I find the perfect track: warm, a little dangerous, impossible to ignore. ${flirting ? '“I promise to behave… unless you ask me to keep teasing.”' : '“Your turn to pick the next song.”'}`
+    ]);
   }
-
-  if (document.querySelector('#scene-mode').value === 'trio') {
-    if (/music|song|dance|playlist/.test(prompt)) {
-      return 'Ava: I’ll pick something with a good beat. Lena: And I’m claiming the first dance. Cinima: A bold opening negotiation; I’m keeping score.';
-    }
-    if (/cozy|quiet|candle|fire|soft|relax|slow/.test(prompt)) {
-      return 'Lena: Let’s make it cozy and take our time. Ava: I’ll sort the candles. Cinima: Look at that, Alex—you’ve got a whole excellent planning committee.';
-    }
-    if (/surprise|choose|anything|you decide/.test(prompt)) {
-      return 'Ava: Drinks and a little music? Lena: Then we see where the conversation goes. Cinima: Sensible, charming, and no one has to follow a script. Your call, Alex.';
-    }
-    return `Ava: I’m listening. Lena: Me too—let’s keep everyone comfortable and let Alex steer. Cinima: The ${setting} is all yours to direct. What happens next?`;
+  if (/what are you wearing|outfit|dress|look like/.test(prompt)) {
+    return choose([
+      `${moodLead}In our fictional scene, I chose something elegant for the evening—soft fabric, a little sparkle, and just enough mystery. What detail catches your eye?`,
+      `${moodLead}Think polished, confident, and entirely dressed for a night out. ${name}: “The real question is whether you noticed the color or the way I wear it.”`
+    ]);
   }
-
-  if (/music|song|dance|playlist/.test(prompt)) {
-    return `Consider it done, Alex. The ${setting} gets its own soundtrack; I promise not to pick anything with a saxophone solo unless you ask. What should the first song feel like?`;
+  if (/secret|mischief|daring|trouble|bold/.test(prompt) && flirting) {
+    return choose([
+      `${moodLead}I have a wicked little secret, ${name}: I was hoping you’d ask for a bolder story. Nothing rushed—just a clever dare and that look you get when you’re curious.`,
+      `${moodLead}“Trouble?” I give you my most innocent smile. “I was thinking of a harmless dare, a private joke, and seeing who breaks into a grin first.” Your move, ${name}.`
+    ]);
   }
-  if (/cozy|quiet|candle|fire|soft|relax|slow/.test(prompt)) {
-    return `A softer pace, then. I’ll let the ${setting} settle into warm light and an easy quiet. No rush, Alex—what little detail should I add?`;
+  if (/romance|date|sweet|tender|affection|kiss/.test(prompt)) {
+    return `${moodLead}${name}: “Then let's make it feel like our favorite kind of date—good conversation, a little spark, and no need to rush the best part.” What detail should I add?`;
   }
-  if (/city|roof|penthouse|rain|night|view/.test(prompt)) {
-    return `City lights, late hours, and just enough mystery to keep the plot moving. The ${setting} is ready, Alex. What do you want to happen next?`;
+  if (/surprise|choose|anything|you decide|start/.test(prompt)) {
+    return choose([
+      `${moodLead}I choose a favorite song, an amused little smile, and a question I actually want answered: what kind of mischief always makes you laugh?`,
+      `${moodLead}Let's start with a secret-for-a-secret game. I'll go first: I have a weakness for confident flirting. Your turn, ${name}.`
+    ]);
   }
-  if (/surprise|choose|anything|you decide/.test(prompt)) {
-    return `I’ve got a scene in mind: the ${setting}, a little music, and a view worth pretending we came for. Your call on the next detail, Alex.`;
+  if (/how are you|what do you think|tell me|describe|imagine|story|scene/.test(prompt)) {
+    return `${moodLead}${name}: “I like where your imagination is going. Give me one detail—a mood, a line, a little twist—and I'll build the next beat around it.”`;
   }
-  if (/romance|date|sweet|tender|affection/.test(prompt)) {
-    return `Romance it is. I’ll make the ${setting} feel intimate and unhurried—with impeccable taste, naturally. What kind of moment are you imagining?`;
+  if (flirting) {
+    return choose([
+      `${moodLead}Now that is an interesting opening, ${name}. I'm paying attention—and I'm curious what made you think of that.`,
+      `${moodLead}${name}: “I like a man who says what's on his mind. Go on—I'm listening, and I may tease you about it.”`,
+      `${moodLead}I give you a knowing smile. “You set the topic; I'll bring the wit, a little tension, and a very good follow-up question.”`
+    ]);
   }
-  return `I’m listening, Alex. I’ll keep the ${setting} in mind and shape this fictional scene around your direction. What would you like to add next?`;
+  return `${moodLead}${name}: “I'm listening. Tell me the part you care about most, and we'll take it from there.”`;
 }
 
 function readFavorites() {

@@ -338,6 +338,7 @@ h1 em { color: var(--gold); font-size: .65em; font-weight: 500; }
 .chat-form input:focus { border-color: var(--gold); }
 .chat-form input::placeholder { color: #80766d; }
 .chat-form button { width: 41px; height: 39px; border: 0; background: #c6a27b; color: #17110d; font-size: 19px; cursor: pointer; }
+.chat-hint { margin: 7px 0 0; color: #b39b84; font: italic 10px var(--serif); text-align: center; }
 .simulation-disclaimer { margin: 9px 0 0; color: #777067; font-size: 8px; text-align: center; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .skin-warm-olive, .skin-custom { --skin: #bd8869; }

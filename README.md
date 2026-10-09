@@ -35,6 +35,7 @@ npm start
 - A three-person fictional scene with two blonde adult guests, consent-aware scripted replies, and a solo mode
 - An enabled-by-default enhanced scene-pacing mode for more atmospheric, proactive non-graphic replies; can be switched off in the chat, including in local demo mode
 - An enabled-by-default playful teasing toggle for suggestive, non-graphic flirting; explicit sexual content and pressure are not supported, and consent controls remain immediate
+- A freeform chat prompt that accepts natural messages without requiring scene-studio or companion-feed setup; replies follow the prompt with open-ended, consent-aware playful banter (provider-backed replies require explicit opt-in)
 - Local scripted demo replies by default, with an explicit opt-in to a server-side, xAI-compatible AI chat provider
 - Provider credentials remain server-side; chat history is held only in memory for the current browser session
 - The scene studio only composes prompt text locally; it does not generate media or upload prompt details
