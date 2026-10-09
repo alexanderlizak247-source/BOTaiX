@@ -16,6 +16,7 @@ Then open <http://localhost:3000>.
 - Category filters, surprise-me scene selection, and favorites saved in local storage
 - A private-mode screen toggle and responsive layout
 - A local roleplay room with configurable adult character appearance, name, and setting
+- A three-person fictional scene with two blonde adult guests, consent-aware scripted replies, and a solo mode
 - Scripted text responses; no AI provider or external personal data is connected
 - No runtime dependencies or external image services
 

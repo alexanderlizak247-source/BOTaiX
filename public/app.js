@@ -64,7 +64,9 @@ function updateCompanion() {
   document.querySelector('#character-caption-name').textContent = characterName;
   document.querySelector('#character-caption-look').textContent = `${heritageName} · ${hairName} · ${bodyName}`;
   document.querySelector('#message-name').textContent = characterName;
-  document.querySelector('#room-scene').className = `room-scene room-theme-${appearanceControls.setting.value}`;
+  const sceneMode = document.querySelector('#scene-mode').value;
+  document.querySelector('#room-scene').className =
+    `room-scene room-theme-${appearanceControls.setting.value} room-mode-${sceneMode}`;
   document.querySelector('#setting-caption').textContent =
     appearanceControls.setting.options[appearanceControls.setting.selectedIndex].text.toUpperCase();
   document.querySelector('.custom-heritage-label').classList.toggle('visible', heritage.value === 'custom');
@@ -84,7 +86,9 @@ function addChatMessage(text, speaker) {
   message.className = `chat-message ${speaker}-message`;
   const label = document.createElement('span');
   label.className = 'message-name';
-  label.textContent = speaker === 'user' ? 'You' : (appearanceControls.name.value.trim() || 'Cinima');
+  label.textContent = speaker === 'user' ? 'You' : (
+    speaker === 'companion' ? (appearanceControls.name.value.trim() || 'Cinima') : speaker
+  );
   const paragraph = document.createElement('p');
   paragraph.textContent = text;
   message.append(label, paragraph);
@@ -95,6 +99,22 @@ function addChatMessage(text, speaker) {
 function getCompanionReply(request) {
   const prompt = request.toLowerCase();
   const setting = appearanceControls.setting.options[appearanceControls.setting.selectedIndex].text.toLowerCase();
+
+  if (document.querySelector('#scene-mode').value === 'trio') {
+    if (/stop|pause|not comfortable|uncomfortable|slow down/.test(prompt)) {
+      return 'Cinima: Absolutely, Alex. We pause here. Everyone gets a say, and nobody has to continue. What would make you feel comfortable now?';
+    }
+    if (/music|song|dance|playlist/.test(prompt)) {
+      return 'Ava: I’ll pick something with a good beat. Lena: And I’m claiming the first dance. Cinima: A bold opening negotiation; I’m keeping score.';
+    }
+    if (/cozy|quiet|candle|fire|soft|relax|slow/.test(prompt)) {
+      return 'Lena: Let’s make it cozy and take our time. Ava: I’ll sort the candles. Cinima: Look at that, Alex—you’ve got a whole excellent planning committee.';
+    }
+    if (/surprise|choose|anything|you decide/.test(prompt)) {
+      return 'Ava: Drinks and a little music? Lena: Then we see where the conversation goes. Cinima: Sensible, charming, and no one has to follow a script. Your call, Alex.';
+    }
+    return `Ava: I’m listening. Lena: Me too—let’s keep everyone comfortable and let Alex steer. Cinima: The ${setting} is all yours to direct. What happens next?`;
+  }
 
   if (/music|song|dance|playlist/.test(prompt)) {
     return `Consider it done, Alex. The ${setting} gets its own soundtrack; I promise not to pick anything with a saxophone solo unless you ask. What should the first song feel like?`;
@@ -272,6 +292,7 @@ document.querySelector('#chat-form').addEventListener('submit', (event) => {
   window.setTimeout(() => addChatMessage(getCompanionReply(request), 'companion'), 350);
 });
 
+document.querySelector('#scene-mode').addEventListener('change', updateCompanion);
 loadAppearance();
 updateCompanion();
 renderGallery();

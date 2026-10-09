@@ -128,6 +128,11 @@
               <option value="seaside">Seaside hideaway</option>
               <option value="noir">Noir listening room</option>
             </select>
+            <label class="setting-label" for="scene-mode">Scene</label>
+            <select id="scene-mode">
+              <option value="solo">Just Cinima</option>
+              <option value="trio" selected>Three-person scene</option>
+            </select>
             <label class="setting-label" for="character-name">Name (optional)</label>
             <input id="character-name" type="text" maxlength="32" value="Cinima" placeholder="Give her a name">
             <button class="randomize-button" id="randomize-button" type="button">✳  Surprise me with a look</button>
@@ -135,25 +140,31 @@
           </aside>
 
           <div class="simulation-panel">
-            <div class="room-scene" id="room-scene">
+            <div class="room-scene room-mode-trio" id="room-scene">
               <div class="room-window"><span class="window-moon"></span><span class="window-skyline"></span></div>
               <div class="room-lamp"></div>
               <div class="room-sofa"></div>
               <div class="scene-mood"><span class="status-dot"></span> PRIVATE SIMULATION <span class="mood-divider">/</span> <span id="setting-caption">PENTHOUSE, AFTER DARK</span></div>
               <div class="room-character" id="room-character"><span class="character-aura"></span><span class="character-hair"></span><span class="character-head"></span><span class="character-neck"></span><span class="character-torso"></span><span class="character-eye left-eye"></span><span class="character-eye right-eye"></span></div>
+              <div class="room-character guest-character guest-one" aria-label="Fictional adult guest Ava"><span class="character-aura"></span><span class="character-hair"></span><span class="character-head"></span><span class="character-neck"></span><span class="character-torso"></span><span class="character-eye left-eye"></span><span class="character-eye right-eye"></span></div>
+              <div class="room-character guest-character guest-two" aria-label="Fictional adult guest Lena"><span class="character-aura"></span><span class="character-hair"></span><span class="character-head"></span><span class="character-neck"></span><span class="character-torso"></span><span class="character-eye left-eye"></span><span class="character-eye right-eye"></span></div>
+              <div class="guest-name guest-name-one">Ava <span>25+</span></div>
+              <div class="guest-name guest-name-two">Lena <span>25+</span></div>
               <div class="character-caption"><span id="character-caption-name">Cinima</span><span id="character-caption-look">Middle Eastern / North African · Espresso black · Athletic</span></div>
             </div>
             <div class="simulation-chat">
               <div class="chat-header"><span><span class="status-dot"></span> IN THE ROOM</span><span class="local-badge">LOCAL DEMO</span></div>
               <div class="chat-messages" id="chat-messages" aria-live="polite">
-                <div class="chat-message companion-message"><span class="message-name" id="message-name">Cinima</span><p>Alex, I'm here with you: sharp mind, dry wit, and all my attention on the scene you want. This little room is yours to direct. What happens first?</p></div>
+                <div class="chat-message companion-message"><span class="message-name" id="message-name">Cinima</span><p>Alex, I brought company. Ava and Lena are both adults, both fictional, and very much in on the plan. I’ll let them introduce themselves; you set the pace.</p></div>
+                <div class="chat-message guest-message"><span class="message-name">Ava · 25+</span><p>Hi, Alex. I vote we start with drinks, good music, and absolutely no rushing the evening.</p></div>
+                <div class="chat-message guest-message"><span class="message-name">Lena · 25+</span><p>Agreed. We can keep it playful and check that everyone’s comfortable as we go. What kind of mood do you want?</p></div>
               </div>
               <form class="chat-form" id="chat-form">
                 <label class="visually-hidden" for="scene-prompt">Tell the simulation what you want</label>
                 <input id="scene-prompt" type="text" maxlength="500" placeholder="Set the scene or tell me what you want…" autocomplete="off" required>
                 <button type="submit" aria-label="Send message">↑</button>
               </form>
-              <p class="simulation-disclaimer">Fictional adult character, text-only roleplay prototype. No AI service is connected.</p>
+              <p class="simulation-disclaimer">All characters are fictional adults (25+). Text-only prototype; no AI service is connected.</p>
             </div>
           </div>
         </div>
