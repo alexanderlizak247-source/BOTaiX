@@ -25,6 +25,7 @@ const server = createServer(async (request, response) => {
     const content = await readFile(join(root, asset[0]));
     response.writeHead(200, {
       'Content-Type': asset[1],
+      'Cache-Control': 'no-store',
       'X-Content-Type-Options': 'nosniff',
       'Referrer-Policy': 'no-referrer'
     });
@@ -36,6 +37,6 @@ const server = createServer(async (request, response) => {
   }
 });
 
-server.listen(port, () => {
+server.listen(port, '127.0.0.1', () => {
   console.log(`Cinima gallery ready at http://localhost:${port}`);
 });

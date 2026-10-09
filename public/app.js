@@ -20,6 +20,10 @@ const favoriteIds = new Set(readFavorites());
 let activeFilter = 'All';
 let selectedScene = null;
 let toastTimer;
+let currentScript = '';
+let importedImages = [];
+const imageObjectUrls = new Map();
+let imageDatabasePromise;
 const appearanceControls = {
   heritage: document.querySelector('#heritage-select'),
   hair: document.querySelector('#hair-select'),
@@ -134,6 +138,49 @@ function getCompanionReply(request) {
   return `I’m listening, Alex. I’ll keep the ${setting} in mind and shape this fictional scene around your direction. What would you like to add next?`;
 }
 
+function generateSceneScript() {
+  const setting = appearanceControls.setting.options[appearanceControls.setting.selectedIndex].text;
+  const companion = appearanceControls.name.value.trim() || 'Cinima';
+  const trio = document.querySelector('#scene-mode').value === 'trio';
+  const cast = trio
+    ? [`Alex (fictional adult)`, `${companion} (fictional adult)`, 'Ava (fictional adult, blonde)', 'Lena (fictional adult, blonde)']
+    : [`Alex (fictional adult)`, `${companion} (fictional adult)`];
+  const cameraAngles = [
+    'Wide establishing shot of the room and its city lights',
+    'Slow, graceful push-in as everyone shares a smile',
+    'Over-the-shoulder conversation framing',
+    'A gentle pan across the room, ending on the group together'
+  ];
+  const beats = [
+    'Everyone arrives, settles in, and agrees on the mood for the evening.',
+    'The group chooses music and trades playful, welcoming introductions.',
+    'Everyone shares a favorite song over a relaxed toast.',
+    'A slow dance begins; anyone can join, change partners, or sit one out.',
+    'The scene closes on warm conversation, a shared laugh, and a fade to black.'
+  ];
+  const camera = cameraAngles[Math.floor(Math.random() * cameraAngles.length)];
+  const selectedBeats = [...beats];
+  for (let index = selectedBeats.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [selectedBeats[index], selectedBeats[swapIndex]] = [selectedBeats[swapIndex], selectedBeats[index]];
+  }
+  selectedBeats.length = 3;
+  selectedBeats.splice(1, 0, `${companion} checks in: “Everyone still comfortable? We can pause or change the scene any time.”`);
+  currentScript = [
+    'CINEMATIC SCENE OUTLINE',
+    `SETTING: ${setting}`,
+    `CAST: ${cast.join('; ')}`,
+    `CAMERA: ${camera}`,
+    'TONE: Romantic, playful, consensual, non-explicit',
+    '',
+    ...selectedBeats.map((beat, index) => `${index + 1}. ${beat}`),
+    '',
+    'All characters are fictional adults (25+). No intimate recording; fade to black.'
+  ].join('\n');
+  document.querySelector('#script-output').textContent = currentScript;
+  document.querySelector('#copy-script').disabled = false;
+}
+
 function readFavorites() {
   try {
     const saved = JSON.parse(localStorage.getItem('cinima-favorites') || '[]');
@@ -141,6 +188,315 @@ function readFavorites() {
   } catch (error) {
     console.warn('Saved favorites are unavailable:', error);
     return [];
+  }
+}
+
+function openImageDatabase() {
+  if (imageDatabasePromise) return imageDatabasePromise;
+  imageDatabasePromise = new Promise((resolve, reject) => {
+    if (!('indexedDB' in window)) {
+      reject(new Error('This browser does not support a local image library.'));
+      return;
+    }
+
+    const request = indexedDB.open('cinima-private-gallery', 1);
+    request.onupgradeneeded = () => {
+      if (!request.result.objectStoreNames.contains('images')) {
+        request.result.createObjectStore('images', { keyPath: 'id' });
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error || new Error('Could not open the local image library.'));
+    request.onblocked = () => reject(new Error('Close other gallery tabs, then try again.'));
+  });
+  return imageDatabasePromise;
+}
+
+async function runImageTransaction(mode, operation) {
+  const database = await openImageDatabase();
+  return new Promise((resolve, reject) => {
+    const transaction = database.transaction('images', mode);
+    const request = operation(transaction.objectStore('images'));
+    let result;
+
+    request.onsuccess = () => {
+      result = request.result;
+    };
+    request.onerror = () => {
+      reject(request.error || new Error('The image library request failed.'));
+    };
+    transaction.oncomplete = () => resolve(result);
+    transaction.onerror = () => reject(transaction.error || new Error('The image library transaction failed.'));
+    transaction.onabort = () => reject(transaction.error || new Error('The image library transaction was cancelled.'));
+  });
+}
+
+function getImageUrl(image) {
+  if (!imageObjectUrls.has(image.id)) {
+    imageObjectUrls.set(image.id, URL.createObjectURL(image.blob));
+  }
+  return imageObjectUrls.get(image.id);
+}
+
+async function loadImportedImages() {
+  try {
+    importedImages = await runImageTransaction('readonly', (store) => store.getAll());
+    updateExportButton();
+    renderGallery();
+  } catch (error) {
+    console.error('Could not load the local image gallery:', error);
+    showToast(error.message || 'Could not load saved images.');
+  }
+}
+
+function updateExportButton() {
+  const button = document.querySelector('#export-images-button');
+  button.disabled = importedImages.length === 0;
+  button.title = importedImages.length
+    ? `Save ${importedImages.length} imported ${importedImages.length === 1 ? 'image' : 'images'} as a ZIP file`
+    : 'Add images to enable a ZIP download';
+}
+
+function makeImportedCard(image, index) {
+  const card = document.createElement('article');
+  card.className = `scene-card imported-card ${index === 2 ? 'scene-card-tall' : ''}`;
+  const art = document.createElement('button');
+  art.type = 'button';
+  art.className = 'scene-art imported-art';
+  art.setAttribute('aria-label', `View imported image ${image.name}`);
+  const thumbnail = document.createElement('img');
+  thumbnail.src = getImageUrl(image);
+  thumbnail.alt = image.name;
+  thumbnail.loading = 'lazy';
+  art.append(thumbnail);
+  art.addEventListener('click', () => openImportedImage(image));
+
+  const meta = document.createElement('div');
+  meta.className = 'scene-meta';
+  const text = document.createElement('div');
+  const category = document.createElement('span');
+  category.className = 'scene-category';
+  category.textContent = 'Your image';
+  const title = document.createElement('h3');
+  title.textContent = image.name;
+  text.append(category, title);
+
+  const actions = document.createElement('div');
+  actions.className = 'imported-card-actions';
+  const favorite = document.createElement('button');
+  favorite.type = 'button';
+  favorite.className = `favorite-button ${favoriteIds.has(image.id) ? 'is-favorite' : ''}`;
+  favorite.setAttribute('aria-label', favoriteIds.has(image.id) ? 'Remove from favorites' : 'Add to favorites');
+  favorite.setAttribute('aria-pressed', String(favoriteIds.has(image.id)));
+  favorite.textContent = favoriteIds.has(image.id) ? '♥' : '♡';
+  favorite.addEventListener('click', () => toggleFavorite(image.id));
+  const remove = document.createElement('button');
+  remove.type = 'button';
+  remove.className = 'remove-image-button';
+  remove.setAttribute('aria-label', `Remove ${image.name} from this browser`);
+  remove.title = 'Remove this local image';
+  remove.textContent = '×';
+  remove.addEventListener('click', () => removeImportedImage(image));
+  actions.append(favorite, remove);
+  meta.append(text, actions);
+  card.append(art, meta);
+  return card;
+}
+
+function openImportedImage(image) {
+  selectedScene = image;
+  const dialogArt = document.querySelector('#dialog-art');
+  dialogArt.className = 'dialog-art imported-dialog-art';
+  const fullImage = document.createElement('img');
+  fullImage.src = getImageUrl(image);
+  fullImage.alt = image.name;
+  dialogArt.replaceChildren(fullImage);
+  document.querySelector('#dialog-category').textContent = 'YOUR PRIVATE LOCAL GALLERY';
+  document.querySelector('#dialog-title').textContent = image.name;
+  document.querySelector('#dialog-description').textContent = 'Stored only in this browser. This image has not been uploaded.';
+  updateDialogFavorite();
+  dialog.showModal();
+}
+
+async function crc32(bytes) {
+  let crc = 0xffffffff;
+  for (const byte of bytes) {
+    crc ^= byte;
+    for (let bit = 0; bit < 8; bit += 1) {
+      crc = (crc >>> 1) ^ ((crc & 1) ? 0xedb88320 : 0);
+    }
+  }
+  return (crc ^ 0xffffffff) >>> 0;
+}
+
+function writeZipEntryHeader(signature, nameBytes, checksum, size, offset = 0) {
+  const isLocal = signature === 0x04034b50;
+  const buffer = new ArrayBuffer(isLocal ? 30 : 46);
+  const view = new DataView(buffer);
+  view.setUint32(0, signature, true);
+  if (isLocal) {
+    view.setUint16(4, 20, true);
+    view.setUint16(6, 0x0800, true);
+    view.setUint32(14, checksum, true);
+    view.setUint32(18, size, true);
+    view.setUint32(22, size, true);
+    view.setUint16(26, nameBytes.length, true);
+    view.setUint16(28, 0, true);
+  } else {
+    view.setUint16(4, 0x0314, true);
+    view.setUint16(6, 20, true);
+    view.setUint16(8, 0x0800, true);
+    view.setUint32(16, checksum, true);
+    view.setUint32(20, size, true);
+    view.setUint32(24, size, true);
+    view.setUint16(28, nameBytes.length, true);
+    view.setUint16(30, 0, true);
+    view.setUint16(32, 0, true);
+    view.setUint16(34, 0, true);
+    view.setUint16(36, 0, true);
+    view.setUint32(38, 0, true);
+    view.setUint32(42, offset, true);
+  }
+  return new Uint8Array(buffer);
+}
+
+async function createImageArchive(images) {
+  if (images.length > 65535) {
+    throw new Error('The archive can contain at most 65,535 images.');
+  }
+
+  const encoder = new TextEncoder();
+  const localParts = [];
+  const centralParts = [];
+  const usedNames = new Map();
+  let localOffset = 0;
+  let centralSize = 0;
+
+  for (const image of images) {
+    const originalName = image.name.replace(/[<>:"/\\|?*\u0000-\u001f]/g, '_').trim() || 'image';
+    const nameCount = (usedNames.get(originalName) || 0) + 1;
+    usedNames.set(originalName, nameCount);
+    const name = nameCount === 1 ? originalName : `${originalName} (${nameCount})`;
+    const extension = {
+      'image/jpeg': '.jpg',
+      'image/png': '.png',
+      'image/webp': '.webp',
+      'image/gif': '.gif',
+      'image/avif': '.avif'
+    }[image.type] || '.img';
+    const filenameBytes = encoder.encode(`cinima-gallery/${name}${extension}`);
+    const imageBytes = new Uint8Array(await image.blob.arrayBuffer());
+    const checksum = crc32(imageBytes);
+    if (imageBytes.length > 0xffffffff || localOffset > 0xffffffff) {
+      throw new Error('The image archive exceeds the ZIP32 size limit.');
+    }
+
+    const localHeader = writeZipEntryHeader(0x04034b50, filenameBytes, checksum, imageBytes.length);
+    localParts.push(localHeader, filenameBytes, imageBytes);
+    const centralHeader = writeZipEntryHeader(0x02014b50, filenameBytes, checksum, imageBytes.length, localOffset);
+    centralParts.push(centralHeader, filenameBytes);
+    localOffset += localHeader.length + filenameBytes.length + imageBytes.length;
+    centralSize += centralHeader.length + filenameBytes.length;
+  }
+
+  if (localOffset > 0xffffffff || centralSize > 0xffffffff) {
+    throw new Error('The image archive exceeds the ZIP32 size limit.');
+  }
+
+  const endBuffer = new ArrayBuffer(22);
+  const endView = new DataView(endBuffer);
+  endView.setUint32(0, 0x06054b50, true);
+  endView.setUint16(8, images.length, true);
+  endView.setUint16(10, images.length, true);
+  endView.setUint32(12, centralSize, true);
+  endView.setUint32(16, localOffset, true);
+  endView.setUint16(20, 0, true);
+  return new Blob([...localParts, ...centralParts, new Uint8Array(endBuffer)], { type: 'application/zip' });
+}
+
+async function exportImageArchive() {
+  try {
+    const images = await runImageTransaction('readonly', (store) => store.getAll());
+    if (!images.length) {
+      showToast('Add images to your gallery before saving an archive.');
+      updateExportButton();
+      return;
+    }
+
+    const archive = await createImageArchive(images);
+    const url = URL.createObjectURL(archive);
+    const download = document.createElement('a');
+    download.href = url;
+    download.download = `cinima-gallery-${new Date().toISOString().slice(0, 10)}.zip`;
+    document.body.append(download);
+    download.click();
+    download.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    showToast(`Saved a ZIP archive with ${images.length} ${images.length === 1 ? 'image' : 'images'}.`);
+  } catch (error) {
+    console.error('Could not create the private image archive:', error);
+    showToast(error.message || 'Could not create the image archive.');
+  }
+}
+
+async function importImageFiles(fileList) {
+  const selectedFiles = [...fileList];
+  const validFiles = selectedFiles.filter((file) =>
+    ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'].includes(file.type)
+      && file.size > 0
+      && file.size <= 25 * 1024 * 1024
+  );
+  const batch = [];
+  let batchBytes = 0;
+  for (const file of validFiles) {
+    if (batch.length === 20 || batchBytes + file.size > 100 * 1024 * 1024) break;
+    batch.push(file);
+    batchBytes += file.size;
+  }
+
+  if (validFiles.length !== selectedFiles.length || batch.length !== validFiles.length) {
+    showToast('Some files were skipped. Add up to 20 images per batch, 100 MB total; each image must be under 25 MB.');
+  }
+  if (!batch.length) return;
+
+  try {
+    const records = batch.map((file) => ({
+      id: `local-${crypto.randomUUID()}`,
+      name: file.name.replace(/\.[^.]+$/, '').slice(0, 100) || 'Untitled image',
+      type: file.type,
+      blob: file,
+      addedAt: Date.now()
+    }));
+    await runImageTransaction('readwrite', (store) => {
+      for (const record of records) store.add(record);
+      return store.get(records[0].id);
+    });
+    importedImages = await runImageTransaction('readonly', (store) => store.getAll());
+    updateExportButton();
+    renderGallery();
+    showToast(`${records.length} ${records.length === 1 ? 'image added' : 'images added'} to your private gallery.`);
+  } catch (error) {
+    console.error('Could not import images into the local gallery:', error);
+    showToast(error.message || 'Could not save those images in this browser.');
+  }
+}
+
+async function removeImportedImage(image) {
+  if (!window.confirm(`Remove "${image.name}" from this browser's private gallery?`)) return;
+  try {
+    await runImageTransaction('readwrite', (store) => store.delete(image.id));
+    const objectUrl = imageObjectUrls.get(image.id);
+    if (objectUrl) URL.revokeObjectURL(objectUrl);
+    imageObjectUrls.delete(image.id);
+    favoriteIds.delete(image.id);
+    saveFavorites();
+    importedImages = importedImages.filter((item) => item.id !== image.id);
+    updateExportButton();
+    renderGallery();
+    showToast('Image removed from this browser.');
+  } catch (error) {
+    console.error('Could not remove the local image:', error);
+    showToast(error.message || 'Could not remove that image.');
   }
 }
 
@@ -181,16 +537,28 @@ function makeCard(scene, index) {
 }
 
 function renderGallery() {
-  const visibleScenes = scenes.filter((scene) => {
-    if (activeFilter === 'Favorites') return favoriteIds.has(scene.id);
-    return activeFilter === 'All' || scene.category === activeFilter;
-  });
-  grid.replaceChildren(...visibleScenes.map(makeCard));
-  count.textContent = `${visibleScenes.length} ${visibleScenes.length === 1 ? 'scene' : 'scenes'}`;
-  if (!visibleScenes.length) {
+  const visibleScenes = scenes.filter((scene) =>
+    activeFilter === 'Favorites'
+      ? favoriteIds.has(scene.id)
+      : activeFilter !== 'My images' && (activeFilter === 'All' || scene.category === activeFilter)
+  );
+  const visibleImages = importedImages.filter((image) =>
+    activeFilter === 'All'
+      || activeFilter === 'My images'
+      || (activeFilter === 'Favorites' && favoriteIds.has(image.id))
+  );
+  grid.replaceChildren(
+    ...visibleScenes.map(makeCard),
+    ...visibleImages.map(makeImportedCard)
+  );
+  const totalVisible = visibleScenes.length + visibleImages.length;
+  count.textContent = `${totalVisible} ${totalVisible === 1 ? 'item' : 'items'}`;
+  if (!totalVisible) {
     const empty = document.createElement('p');
     empty.className = 'empty-state';
-    empty.textContent = 'No favorites yet. Tap a heart on any scene to keep it close.';
+    empty.textContent = activeFilter === 'Favorites'
+      ? 'No favorites yet. Tap a heart on any scene or image to keep it close.'
+      : 'No images yet. Choose “Add images” to import pictures saved on your device.';
     grid.append(empty);
   }
 }
@@ -246,6 +614,15 @@ document.querySelector('#shuffle-button').addEventListener('click', () => {
   openScene(options[Math.floor(Math.random() * options.length)]);
 });
 
+document.querySelector('#import-images-button').addEventListener('click', () => {
+  document.querySelector('#image-file-input').click();
+});
+document.querySelector('#image-file-input').addEventListener('change', (event) => {
+  if (event.currentTarget.files?.length) void importImageFiles(event.currentTarget.files);
+  event.currentTarget.value = '';
+});
+document.querySelector('#export-images-button').addEventListener('click', () => void exportImageArchive());
+
 document.querySelector('#private-toggle').addEventListener('click', (event) => {
   const button = event.currentTarget;
   const isPrivate = button.getAttribute('aria-pressed') !== 'true';
@@ -293,6 +670,18 @@ document.querySelector('#chat-form').addEventListener('submit', (event) => {
 });
 
 document.querySelector('#scene-mode').addEventListener('change', updateCompanion);
+document.querySelector('#generate-script').addEventListener('click', generateSceneScript);
+document.querySelector('#copy-script').addEventListener('click', async () => {
+  if (!currentScript) return;
+  try {
+    await navigator.clipboard.writeText(currentScript);
+    showToast('Scene outline copied.');
+  } catch (error) {
+    console.warn('Clipboard copy failed:', error);
+    showToast('Could not copy automatically. Select the outline and copy it.');
+  }
+});
 loadAppearance();
 updateCompanion();
 renderGallery();
+void loadImportedImages();

@@ -6,9 +6,6 @@
     <meta name="theme-color" content="#100d0c">
     <meta name="description" content="A private, cinematic collection of romantic scene concepts.">
     <title>Alex &amp; Cinima — Private Gallery</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/styles.css">
     <script src="/app.js" defer></script>
   </head>
@@ -164,7 +161,19 @@
                 <input id="scene-prompt" type="text" maxlength="500" placeholder="Set the scene or tell me what you want…" autocomplete="off" required>
                 <button type="submit" aria-label="Send message">↑</button>
               </form>
-              <p class="simulation-disclaimer">All characters are fictional adults (25+). Text-only prototype; no AI service is connected.</p>
+              <div class="script-generator">
+                <div class="script-generator-heading">
+                  <div><span class="dialog-category">FICTIONAL SCENE BUILDER</span><h3>Make a little movie</h3></div>
+                  <span class="local-badge">TEXT ONLY</span>
+                </div>
+                <p class="script-generator-copy">Create a romantic, cinematic outline using this room, cast, and a little chance.</p>
+                <div class="script-actions">
+                  <button class="randomize-button" id="generate-script" type="button">✳ Generate a scene</button>
+                  <button class="copy-script-button" id="copy-script" type="button" disabled>Copy outline</button>
+                </div>
+                <pre class="script-output" id="script-output" aria-live="polite">Your scene outline will appear here.</pre>
+              </div>
+              <p class="simulation-disclaimer">Fictional adult characters (25+). Romantic, non-explicit text only; no recording or AI service.</p>
             </div>
           </div>
         </div>
@@ -181,15 +190,22 @@
 
         <div class="toolbar">
           <div class="filters" role="group" aria-label="Filter scenes">
-            <button class="filter-chip selected" type="button" data-filter="All">All scenes <span>12</span></button>
+            <button class="filter-chip selected" type="button" data-filter="All">All scenes</button>
             <button class="filter-chip" type="button" data-filter="Romance">Romance</button>
             <button class="filter-chip" type="button" data-filter="After dark">After dark</button>
             <button class="filter-chip" type="button" data-filter="Daydream">Daydream</button>
+            <button class="filter-chip" type="button" data-filter="My images">My images</button>
             <button class="filter-chip favorites-filter" type="button" data-filter="Favorites">♡ Favorites</button>
           </div>
-          <button class="sort-button" id="shuffle-button" type="button"><span aria-hidden="true">✳</span> Surprise me</button>
+          <div class="gallery-actions">
+            <button class="sort-button" id="import-images-button" type="button"><span aria-hidden="true">＋</span> Add images</button>
+            <input id="image-file-input" class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif" multiple>
+            <button class="sort-button" id="export-images-button" type="button" disabled><span aria-hidden="true">↓</span> Save all</button>
+            <button class="sort-button" id="shuffle-button" type="button"><span aria-hidden="true">✳</span> Surprise me</button>
+          </div>
         </div>
 
+        <p class="image-library-note"><span class="lock-icon" aria-hidden="true">◇</span> Your imported images stay in this browser's private local gallery. Nothing is uploaded.</p>
         <div class="gallery-grid" id="gallery-grid" aria-live="polite"></div>
         <div class="gallery-footer">
           <span id="gallery-count">12 scenes</span>
