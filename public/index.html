@@ -22,7 +22,10 @@
       </a>
       <nav class="main-nav" aria-label="Main navigation">
         <a class="nav-link" href="#room">Room</a>
+        <a class="nav-link" href="#discover">Discover</a>
+        <a class="nav-link" href="#scene-studio">Create</a>
         <a class="nav-link active" href="#gallery">Gallery</a>
+        <a class="nav-link" href="#my-images">My images</a>
         <a class="nav-link" href="#about">Our story</a>
       </nav>
       <button class="private-toggle" id="private-toggle" type="button" aria-pressed="false">
@@ -30,6 +33,7 @@
         <span id="private-label">Private mode</span>
         <span class="toggle-track"><span></span></span>
       </button>
+      <button class="fullscreen-toggle" id="fullscreen-toggle" type="button" aria-pressed="false">⛶ <span>Full screen</span></button>
     </header>
 
     <main>
@@ -56,6 +60,174 @@
           <span>SCENES TO GET LOST IN</span>
           <span>SCROLL TO DISCOVER <span class="scroll-arrow">↓</span></span>
           <span>EST. JUST NOW</span>
+        </div>
+      </section>
+
+      <section class="quick-start" id="quick-start" aria-labelledby="quick-start-title">
+        <div class="quick-start-heading">
+          <div>
+            <div class="eyebrow left"><span class="eyebrow-line"></span> YOUR FIRST THREE STEPS</div>
+            <h2 id="quick-start-title">Make this space <em>yours</em></h2>
+          </div>
+          <p class="section-description">A little guide to getting started—at your pace, with your choices.</p>
+        </div>
+        <div class="quick-start-grid">
+          <article class="quick-start-card">
+            <span class="quick-start-number">01</span>
+            <div>
+              <h3>Shape your companion</h3>
+              <p>Choose a look, a name, and a setting for your fictional room.</p>
+              <a href="#room">Personalize the room <span aria-hidden="true">↗</span></a>
+            </div>
+          </article>
+          <article class="quick-start-card">
+            <span class="quick-start-number">02</span>
+            <div>
+              <h3>Find your atmosphere</h3>
+              <p>Browse the gallery or shape a still-image or motion prompt in the scene studio.</p>
+              <a href="#scene-studio">Open the scene studio <span aria-hidden="true">↗</span></a>
+            </div>
+          </article>
+          <article class="quick-start-card">
+            <span class="quick-start-number">03</span>
+            <div>
+              <h3>Set the pace</h3>
+              <p>Chat locally by default. External AI stays off unless you opt in.</p>
+              <a href="#scene-prompt">Start a conversation <span aria-hidden="true">↗</span></a>
+            </div>
+          </article>
+        </div>
+        <p class="quick-start-note"><span class="status-dot"></span>All scenes are fictional; stop, pause, or change direction whenever you like.</p>
+      </section>
+
+      <section class="discover-section" id="discover" aria-labelledby="discover-title">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow left"><span class="eyebrow-line"></span> THE COMPANION FEED</div>
+            <h2 id="discover-title">Meet your <em>next muse</em></h2>
+          </div>
+          <p class="section-description">Scroll or swipe through fictional adult character concepts. Choose one to set up your local chat.</p>
+        </div>
+        <div class="companion-feed" id="companion-feed" aria-label="Fictional adult companion concepts"></div>
+        <p class="discover-note"><span class="status-dot"></span>Original fictional adults 25+. Portraits are abstract CSS art; these are character presets, not generated photos.</p>
+      </section>
+
+      <section class="scene-studio" id="scene-studio" aria-labelledby="scene-studio-title">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow left"><span class="eyebrow-line"></span> THE CREATIVE DESK</div>
+            <h2 id="scene-studio-title">Compose a <em>scene</em></h2>
+          </div>
+          <p class="section-description">Build a thoughtful prompt from the character and mood you choose.</p>
+        </div>
+        <div class="studio-layout">
+          <form class="studio-controls" id="studio-form">
+            <div class="studio-mode" role="group" aria-label="Prompt format">
+              <button type="button" class="studio-mode-button selected" data-format="image" aria-pressed="true">Still image prompt</button>
+              <button type="button" class="studio-mode-button" data-format="motion" aria-pressed="false">Motion prompt</button>
+            </div>
+            <p class="studio-mode-note" id="studio-mode-note">A single-frame visual concept. This creates prompt text only; it does not generate an image.</p>
+            <div class="studio-preset-row">
+              <span>Look inspiration</span>
+              <button class="studio-preset-button" id="realistic-preset" type="button">Realistic portrait</button>
+            </div>
+            <div class="studio-fields">
+              <label class="studio-field">Visual style
+                <select id="studio-style">
+                  <option>Photorealistic editorial portrait</option>
+                  <option>Cinematic fantasy illustration</option>
+                  <option>Soft analog film still</option>
+                  <option>Painterly editorial portrait</option>
+                  <option>Dreamlike, moonlit realism</option>
+                  <option>Warm, natural portrait photography</option>
+                </select>
+              </label>
+              <label class="studio-field">Pose or scene
+                <select id="studio-pose">
+                  <option>Standing beneath an old stone arch</option>
+                  <option>Seated beside a rain-lit window</option>
+                  <option>Sharing a slow dance in a quiet room</option>
+                  <option>Walking through a moonlit garden</option>
+                  <option>Looking toward a distant city skyline</option>
+                  <option>Three fictional adult companions sharing a relaxed evening</option>
+                </select>
+              </label>
+              <label class="studio-field">Mood
+                <select id="studio-mood">
+                  <option>Warm, playful, and unhurried</option>
+                  <option>Mysterious and quietly confident</option>
+                  <option>Tender, romantic, and relaxed</option>
+                  <option>Adventurous with a touch of wonder</option>
+                  <option>Calm, intimate, and candlelit</option>
+                </select>
+              </label>
+              <label class="studio-field">Expression
+                <select id="studio-expression">
+                  <option>A warm, natural smile</option>
+                  <option>A calm, confident expression</option>
+                  <option>A thoughtful, dreamy look</option>
+                  <option>A playful, knowing smile</option>
+                  <option>A look of quiet wonder</option>
+                </select>
+              </label>
+              <label class="studio-field">Framing
+                <select id="studio-framing">
+                  <option>Elegant full-body composition</option>
+                  <option>Waist-up cinematic portrait</option>
+                  <option>Close portrait with soft background</option>
+                  <option>Wide establishing shot with atmospheric setting</option>
+                </select>
+              </label>
+              <label class="studio-field">Finishing filter
+                <select id="studio-filter">
+                  <option>Soft cinematic color grade</option>
+                  <option>Warm vintage film grain</option>
+                  <option>Cool cyberpunk color accents</option>
+                  <option>Soft painterly finish</option>
+                  <option>Natural, unfiltered lighting</option>
+                </select>
+              </label>
+              <label class="studio-field">Start from a gallery scene
+                <select id="studio-reference">
+                  <option value="">No reference scene</option>
+                </select>
+              </label>
+              <label class="studio-consistency"><input id="studio-use-companion" type="checkbox" checked> Keep my current companion look consistent</label>
+              <label class="studio-field studio-field-wide">Add a scene detail
+                <textarea id="studio-detail" rows="3" maxlength="500" placeholder="Describe the moment, setting, lighting, or a small story beat"></textarea>
+              </label>
+              <label class="studio-field studio-field-wide">Refine this concept
+                <input id="studio-tweak" type="text" maxlength="180" placeholder="Optional small change, such as warmer light or a new background">
+              </label>
+              <label class="studio-field studio-field-wide">Avoid in the result
+                <input id="studio-avoid" type="text" maxlength="180" placeholder="Optional visual elements or styles to leave out">
+              </label>
+            </div>
+            <p class="studio-safety-note"><span aria-hidden="true">◇</span> Fictional adults 25+ only. Keep it consensual and non-graphic; no real-person likenesses.</p>
+            <button class="studio-compose-button" type="submit">Compose prompt <span aria-hidden="true">✦</span></button>
+          </form>
+          <div class="studio-result-panel">
+            <div class="studio-result-header"><span>YOUR PROMPT</span><span class="local-badge">LOCAL ONLY</span></div>
+            <label class="visually-hidden" for="studio-result">Composed visual prompt</label>
+            <textarea id="studio-result" rows="10" readonly placeholder="Your composed prompt will appear here. Nothing is uploaded or generated."></textarea>
+            <div class="studio-recipe" aria-label="Current prompt recipe">
+              <div class="studio-recipe-heading"><span>RECIPE</span><span>Updates as you compose</span></div>
+              <dl class="studio-recipe-grid">
+                <div><dt>Format</dt><dd id="recipe-format">Still image</dd></div>
+                <div><dt>Style</dt><dd id="recipe-style">Photorealistic editorial portrait</dd></div>
+                <div><dt>Framing</dt><dd id="recipe-framing">Elegant full-body composition</dd></div>
+                <div><dt>Pose</dt><dd id="recipe-pose">Standing beneath an old stone arch</dd></div>
+                <div><dt>Expression</dt><dd id="recipe-expression">A warm, natural smile</dd></div>
+                <div><dt>Finish</dt><dd id="recipe-filter">Soft cinematic color grade</dd></div>
+                <div class="recipe-reference"><dt>Reference</dt><dd id="recipe-reference">None</dd></div>
+                <div><dt>Output</dt><dd>Prompt text only</dd></div>
+              </dl>
+            </div>
+            <div class="studio-result-footer">
+              <span id="studio-result-status" role="status" aria-live="polite">Nothing leaves this browser.</span>
+              <button class="studio-copy-button" id="studio-copy" type="button" disabled>Copy prompt</button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -153,18 +325,30 @@
               <div class="character-caption"><span id="character-caption-name">Cinima</span><span id="character-caption-look">Middle Eastern / North African · Espresso black · Athletic</span></div>
             </div>
             <div class="simulation-chat">
-              <div class="chat-header"><span><span class="status-dot"></span> IN THE ROOM</span><span class="local-badge">LOCAL DEMO</span></div>
+              <div class="chat-header"><span><span class="status-dot"></span> IN THE ROOM</span><span class="local-badge" id="provider-badge">LOCAL DEMO</span></div>
               <div class="chat-messages" id="chat-messages" aria-live="polite">
                 <div class="chat-message companion-message"><span class="message-name" id="message-name">Cinima</span><p>Alex, I brought company. Ava and Lena are both adults, both fictional, and very much in on the plan. I’ll let them introduce themselves; you set the pace.</p></div>
                 <div class="chat-message guest-message"><span class="message-name">Ava · 25+</span><p>Hi, Alex. I vote we start with drinks, good music, and absolutely no rushing the evening.</p></div>
                 <div class="chat-message guest-message"><span class="message-name">Lena · 25+</span><p>Agreed. We can keep it playful and check that everyone’s comfortable as we go. What kind of mood do you want?</p></div>
+              </div>
+              <div class="pacing-control">
+                <label for="enhanced-pacing"><input id="enhanced-pacing" type="checkbox" checked> Enhanced scene pacing</label>
+                <p>More atmosphere and forward momentum, while staying non-graphic. You can change direction or pause at any time.</p>
+              </div>
+              <div class="pacing-control">
+                <label for="teasing-mode"><input id="teasing-mode" type="checkbox" checked> Playful, flirty teasing</label>
+                <p>Suggestive banter only—not explicit. No pressure; “stop,” “no,” and “pause” always take effect immediately.</p>
+              </div>
+              <div class="provider-consent">
+                <label for="provider-opt-in"><input id="provider-opt-in" type="checkbox" disabled> Use a configured external AI for replies</label>
+                <p id="provider-status" role="status" aria-live="polite">Checking server configuration…</p>
               </div>
               <form class="chat-form" id="chat-form">
                 <label class="visually-hidden" for="scene-prompt">Tell the simulation what you want</label>
                 <input id="scene-prompt" type="text" maxlength="500" placeholder="Set the scene or tell me what you want…" autocomplete="off" required>
                 <button type="submit" aria-label="Send message">↑</button>
               </form>
-              <p class="simulation-disclaimer">All characters are fictional adults (25+). Text-only prototype; no AI service is connected.</p>
+              <p class="simulation-disclaimer">Local demo is the default. When enabled, your message, up to 11 recent AI-chat messages, and selected character/scene details go to the server-configured provider. All characters are fictional adults (25+).</p>
             </div>
           </div>
         </div>
@@ -181,7 +365,7 @@
 
         <div class="toolbar">
           <div class="filters" role="group" aria-label="Filter scenes">
-            <button class="filter-chip selected" type="button" data-filter="All">All scenes <span>12</span></button>
+            <button class="filter-chip selected" type="button" data-filter="All">All scenes <span>13</span></button>
             <button class="filter-chip" type="button" data-filter="Romance">Romance</button>
             <button class="filter-chip" type="button" data-filter="After dark">After dark</button>
             <button class="filter-chip" type="button" data-filter="Daydream">Daydream</button>
@@ -192,8 +376,27 @@
 
         <div class="gallery-grid" id="gallery-grid" aria-live="polite"></div>
         <div class="gallery-footer">
-          <span id="gallery-count">12 scenes</span>
+          <span id="gallery-count">13 scenes</span>
           <span>Made of imagination <span class="footer-sparkle">✦</span></span>
+        </div>
+      </section>
+
+      <section class="my-images-section" id="my-images" aria-labelledby="my-images-title">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow left"><span class="eyebrow-line"></span> YOUR PRIVATE LIBRARY</div>
+            <h2 id="my-images-title">Your media, <em>on this device</em></h2>
+          </div>
+          <p class="section-description">Personal references stored in this browser only.</p>
+        </div>
+        <div class="private-library">
+          <label class="image-upload-button" for="private-image-upload">＋ Add images</label>
+          <input class="visually-hidden" id="private-image-upload" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple>
+          <label class="image-upload-button video-upload-button" for="private-video-upload">＋ Add videos</label>
+          <input class="visually-hidden" id="private-video-upload" type="file" accept="video/mp4,video/webm,video/quicktime" multiple>
+          <p class="private-library-status" id="private-library-status" role="status" aria-live="polite">Images and videos stay in this browser’s private IndexedDB library; they are not uploaded to Cinima’s server or sent to the chat AI. Cinima will request persistent browser storage to reduce automatic cleanup. The app has no remove button; clearing browser site data can still erase this library, so keep a separate backup. Rename a file to set a private label; this does not change its image or video. Maximum 10 MB per image and 100 MB per video. Browser storage is not encrypted.</p>
+          <p class="private-library-status" id="private-storage-status" role="status" aria-live="polite">Requesting persistent browser storage…</p>
+          <div class="private-image-grid" id="private-image-grid" aria-live="polite"></div>
         </div>
       </section>
 
@@ -217,8 +420,16 @@
         <span class="dialog-category" id="dialog-category"></span>
         <h2 id="dialog-title"></h2>
         <p id="dialog-description"></p>
+        <button class="dialog-create-prompt" id="dialog-create-prompt" type="button">Build a prompt from this scene</button>
         <button class="dialog-favorite" id="dialog-favorite" type="button"></button>
       </div>
+    </dialog>
+    <dialog class="private-image-dialog" id="private-image-dialog">
+      <button class="dialog-close" id="private-image-close" type="button" aria-label="Close image preview">×</button>
+      <button class="private-media-fullscreen" id="private-media-fullscreen" type="button">View full screen</button>
+      <img id="private-image-preview" alt="">
+      <video id="private-video-preview" controls playsinline hidden></video>
+      <p id="private-image-title"></p>
     </dialog>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
   </body>
