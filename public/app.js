@@ -92,6 +92,28 @@ function addChatMessage(text, speaker) {
   message.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
 
+function getCompanionReply(request) {
+  const prompt = request.toLowerCase();
+  const setting = appearanceControls.setting.options[appearanceControls.setting.selectedIndex].text.toLowerCase();
+
+  if (/music|song|dance|playlist/.test(prompt)) {
+    return `Consider it done, Alex. The ${setting} gets its own soundtrack; I promise not to pick anything with a saxophone solo unless you ask. What should the first song feel like?`;
+  }
+  if (/cozy|quiet|candle|fire|soft|relax|slow/.test(prompt)) {
+    return `A softer pace, then. I’ll let the ${setting} settle into warm light and an easy quiet. No rush, Alex—what little detail should I add?`;
+  }
+  if (/city|roof|penthouse|rain|night|view/.test(prompt)) {
+    return `City lights, late hours, and just enough mystery to keep the plot moving. The ${setting} is ready, Alex. What do you want to happen next?`;
+  }
+  if (/surprise|choose|anything|you decide/.test(prompt)) {
+    return `I’ve got a scene in mind: the ${setting}, a little music, and a view worth pretending we came for. Your call on the next detail, Alex.`;
+  }
+  if (/romance|date|sweet|tender|affection/.test(prompt)) {
+    return `Romance it is. I’ll make the ${setting} feel intimate and unhurried—with impeccable taste, naturally. What kind of moment are you imagining?`;
+  }
+  return `I’m listening, Alex. I’ll keep the ${setting} in mind and shape this fictional scene around your direction. What would you like to add next?`;
+}
+
 function readFavorites() {
   try {
     const saved = JSON.parse(localStorage.getItem('cinima-favorites') || '[]');
@@ -247,13 +269,7 @@ document.querySelector('#chat-form').addEventListener('submit', (event) => {
   if (!request) return;
   addChatMessage(request, 'user');
   input.value = '';
-  const replies = [
-    'She gives you a thoughtful smile. “I like that direction. Tell me a little more about the mood you have in mind.”',
-    'She settles into the scene you described. “All right, let’s imagine it together. What happens next?”',
-    'She meets your eyes, curious and present. “I’m listening. You can shape this story exactly how you want.”',
-    'The room takes on the atmosphere you pictured. “That sounds like a lovely start. Where should we take the scene?”'
-  ];
-  window.setTimeout(() => addChatMessage(replies[Math.floor(Math.random() * replies.length)], 'companion'), 350);
+  window.setTimeout(() => addChatMessage(getCompanionReply(request), 'companion'), 350);
 });
 
 loadAppearance();
