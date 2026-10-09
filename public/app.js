@@ -140,7 +140,7 @@ function renderCompanionFeed() {
     content.className = 'companion-feed-content';
     const label = document.createElement('span');
     label.className = 'feed-adult-label';
-    label.textContent = `FICTIONAL ADULT · ${profile.age}+`;
+    label.textContent = `AI COMPANION · WOMAN · ${profile.age}+`;
     const title = document.createElement('h3');
     title.textContent = profile.name;
     const tagline = document.createElement('p');

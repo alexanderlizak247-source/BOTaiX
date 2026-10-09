@@ -26,7 +26,7 @@ npm start
 - Thirteen gallery cards, including twelve mood-driven scenes and an immersive detail view
 - A user-shared moonlit fantasy portrait, cropped from the supplied screenshot and served locally in the gallery
 - A three-step quick-start guide for personalizing the room, finding a scene, and starting a local-first chat
-- A TikTok-style, vertical snap-scrolling feed of five original fictional adult companion presets; choosing one updates the room locally and supplies its persona to provider-backed chat after opt-in
+- A TikTok-style, vertical snap-scrolling feed of five named fictional adult women (Cinima, Mira, Sora, Nadia, and Elise); choosing one updates the room locally and supplies her persona to provider-backed chat after opt-in
 - A local scene-prompt studio with image/motion formats, a realistic portrait preset, visual style, pose, expression, framing, filters, gallery references, refinements, exclusions, a live prompt-recipe summary, and copy-to-clipboard
 - Category filters, surprise-me scene selection, and favorites saved in local storage
 - A private-mode screen toggle and responsive layout
