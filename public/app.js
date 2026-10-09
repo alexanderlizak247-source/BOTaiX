@@ -26,6 +26,7 @@ const grid = document.querySelector('#gallery-grid');
 const count = document.querySelector('#gallery-count');
 const dialog = document.querySelector('#scene-dialog');
 const privateImageInput = document.querySelector('#private-image-upload');
+const privateImageFolderInput = document.querySelector('#private-image-folder-upload');
 const privateVideoInput = document.querySelector('#private-video-upload');
 const privateImageGrid = document.querySelector('#private-image-grid');
 const privateLibraryStatus = document.querySelector('#private-library-status');
@@ -433,6 +434,70 @@ async function requestPersistentPrivateStorage() {
   }
 }
 
+function getBackupExtension(record) {
+  const extensions = {
+    'image/jpeg': 'jpg',
+    'image/png': 'png',
+    'image/webp': 'webp',
+    'image/gif': 'gif',
+    'video/mp4': 'mp4',
+    'video/webm': 'webm',
+    'video/quicktime': 'mov'
+  };
+  return extensions[record.type] || 'bin';
+}
+
+async function backUpPrivateMedia() {
+  if (typeof window.showDirectoryPicker !== 'function') {
+    privateLibraryStatus.textContent =
+      'Folder backups are not supported in this browser. Open Cinima in a recent desktop Chrome or Edge browser to back up all media at once.';
+    return;
+  }
+
+  const button = document.querySelector('#private-media-backup');
+  button.disabled = true;
+  try {
+    const directory = await window.showDirectoryPicker({ mode: 'readwrite' });
+    const records = await readPrivateImages();
+    if (!records.length) {
+      privateLibraryStatus.textContent = 'There are no images or videos to back up yet.';
+      return;
+    }
+
+    let savedCount = 0;
+    const failures = [];
+    for (const record of records) {
+      const safeName = record.name
+        .replace(/[<>:"/\\|?*\u0000-\u001f]/g, '_')
+        .replace(/[. ]+$/g, '')
+        .slice(0, 80) || 'Private media';
+      const fileName = `${safeName} (${record.id}).${getBackupExtension(record)}`;
+      try {
+        const file = await directory.getFileHandle(fileName, { create: true });
+        const writable = await file.createWritable();
+        await writable.write(record.blob);
+        await writable.close();
+        savedCount += 1;
+        privateLibraryStatus.textContent = `Backing up media… ${savedCount} of ${records.length} saved.`;
+      } catch (error) {
+        failures.push(`${fileName}: ${error.message}`);
+      }
+    }
+    privateLibraryStatus.textContent = [
+      `${savedCount} of ${records.length} media files backed up to the folder you chose.`,
+      ...failures
+    ].join(' ');
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      privateLibraryStatus.textContent = 'Backup canceled; your browser library is unchanged.';
+    } else {
+      privateLibraryStatus.textContent = `Backup could not be completed: ${error.message}`;
+    }
+  } finally {
+    button.disabled = false;
+  }
+}
+
 async function renamePrivateImage(id, name) {
   const database = await openPrivateImageDatabase();
   return new Promise((resolve, reject) => {
@@ -626,7 +691,9 @@ async function addPrivateMedia(input, kind) {
 }
 
 privateImageInput.addEventListener('change', () => addPrivateMedia(privateImageInput, 'image'));
+privateImageFolderInput.addEventListener('change', () => addPrivateMedia(privateImageFolderInput, 'image'));
 privateVideoInput.addEventListener('change', () => addPrivateMedia(privateVideoInput, 'video'));
+document.querySelector('#private-media-backup').addEventListener('click', backUpPrivateMedia);
 
 document.querySelector('#private-image-close').addEventListener('click', () => {
   privateImageDialog.close();
