@@ -399,6 +399,11 @@ h1 em { color: var(--gold); font-size: .65em; font-weight: 500; }
 .private-image-dialog::backdrop { background: rgba(6, 5, 5, .86); backdrop-filter: blur(8px); }
 .private-media-fullscreen { position: absolute; z-index: 4; top: 13px; right: 60px; padding: 9px 11px; border: 1px solid rgba(255, 255, 255, .3); background: rgba(10, 8, 8, .78); color: #f4ede6; font-size: 9px; cursor: pointer; }
 .private-media-fullscreen:hover { background: rgba(10, 8, 8, .96); }
+.private-image-nav { position: absolute; z-index: 3; top: 50%; width: 42px; height: 58px; transform: translateY(-50%); border: 1px solid rgba(255, 255, 255, .3); background: rgba(10, 8, 8, .78); color: #f4ede6; font: 36px/1 var(--serif); cursor: pointer; }
+.private-image-nav:hover { background: rgba(10, 8, 8, .96); }
+.private-image-nav[hidden] { display: none; }
+.private-image-previous { left: 18px; }
+.private-image-next { right: 18px; }
 .private-image-dialog img { display: block; max-width: 100%; max-height: calc(100vh - 90px); margin: auto; object-fit: contain; }
 .private-image-dialog video { display: block; width: 100%; max-height: calc(100vh - 90px); margin: auto; background: #090808; }
 .private-image-dialog p { margin: 10px 0 2px; color: #d2c7bd; font-size: 10px; }

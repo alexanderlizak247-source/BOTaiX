@@ -38,6 +38,8 @@ const privateImageUrls = new Map();
 const maxPrivateImageSize = 10 * 1024 * 1024;
 const maxPrivateVideoSize = 100 * 1024 * 1024;
 let privateImageDatabase;
+let privateImageRecords = [];
+let currentPrivateImageIndex = -1;
 const favoriteIds = new Set(readFavorites());
 let activeFilter = 'All';
 let selectedScene = null;
@@ -525,6 +527,7 @@ function formatFileSize(size) {
 
 async function renderPrivateImages() {
   const images = await readPrivateImages();
+  privateImageRecords = images.filter((record) => record.type.startsWith('image/'));
   for (const url of privateImageUrls.values()) URL.revokeObjectURL(url);
   privateImageUrls.clear();
   privateImageGrid.replaceChildren();
@@ -556,12 +559,14 @@ async function renderPrivateImages() {
       expandButton.className = 'private-video-expand';
       expandButton.textContent = 'View full screen';
       expandButton.addEventListener('click', () => {
+        currentPrivateImageIndex = -1;
         privateImagePreview.hidden = true;
         privateVideoPreview.hidden = false;
         privateVideoPreview.src = url;
         privateVideoPreview.controls = true;
         privateVideoPreview.playsInline = true;
         privateImageTitle.textContent = record.name;
+        updatePrivateImageNavigation();
         document.querySelector('#private-media-fullscreen').hidden = false;
         privateImageDialog.showModal();
         privateVideoPreview.play().catch(() => {});
@@ -580,13 +585,7 @@ async function renderPrivateImages() {
       image.alt = record.name;
       previewButton.append(image);
       previewButton.addEventListener('click', () => {
-        privateImagePreview.hidden = false;
-        privateVideoPreview.hidden = true;
-        privateImagePreview.src = url;
-        privateImagePreview.alt = record.name;
-        privateImageTitle.textContent = record.name;
-        document.querySelector('#private-media-fullscreen').hidden = false;
-        privateImageDialog.showModal();
+        showPrivateImage(privateImageRecords.findIndex((imageRecord) => imageRecord.id === record.id));
       });
       preview = previewButton;
     }
@@ -637,7 +636,11 @@ async function renderPrivateImages() {
           privateLibraryStatus.textContent = 'Private file name updated on this device.';
           if (privateImageDialog.open &&
               (privateImagePreview.src === url || privateVideoPreview.src === url)) {
-            privateImageTitle.textContent = nextName;
+            if (privateImagePreview.src === url && currentPrivateImageIndex >= 0) {
+              updatePrivateImageNavigation();
+            } else {
+              privateImageTitle.textContent = nextName;
+            }
           }
         } catch (error) {
           saveButton.disabled = false;
@@ -690,10 +693,54 @@ async function addPrivateMedia(input, kind) {
   ].filter(Boolean).join(' ') || `No ${kind} files were added.`;
 }
 
+function updatePrivateImageNavigation() {
+  const hasImages = currentPrivateImageIndex >= 0 && privateImageRecords.length > 0;
+  document.querySelector('#private-image-previous').hidden = !hasImages;
+  document.querySelector('#private-image-next').hidden = !hasImages;
+  if (hasImages) {
+    privateImageTitle.textContent = `${privateImageRecords[currentPrivateImageIndex].name} (${currentPrivateImageIndex + 1} of ${privateImageRecords.length})`;
+  }
+}
+
+function showPrivateImage(index) {
+  if (!privateImageRecords.length) return;
+  currentPrivateImageIndex = (index % privateImageRecords.length + privateImageRecords.length) % privateImageRecords.length;
+  const record = privateImageRecords[currentPrivateImageIndex];
+  privateImagePreview.hidden = false;
+  privateVideoPreview.hidden = true;
+  privateImagePreview.src = privateImageUrls.get(record.id);
+  privateImagePreview.alt = record.name;
+  updatePrivateImageNavigation();
+  document.querySelector('#private-media-fullscreen').hidden = false;
+  if (!privateImageDialog.open) privateImageDialog.showModal();
+}
+
+function navigatePrivateImage(direction) {
+  if (!privateImageDialog.open || privateImagePreview.hidden || currentPrivateImageIndex < 0) return;
+  showPrivateImage(currentPrivateImageIndex + direction);
+}
+
 privateImageInput.addEventListener('change', () => addPrivateMedia(privateImageInput, 'image'));
 privateImageFolderInput.addEventListener('change', () => addPrivateMedia(privateImageFolderInput, 'image'));
 privateVideoInput.addEventListener('change', () => addPrivateMedia(privateVideoInput, 'video'));
 document.querySelector('#private-media-backup').addEventListener('click', backUpPrivateMedia);
+
+document.querySelector('#private-image-previous').addEventListener('click', () => navigatePrivateImage(-1));
+document.querySelector('#private-image-next').addEventListener('click', () => navigatePrivateImage(1));
+document.addEventListener('keydown', (event) => {
+  if (!privateImageDialog.open || privateImagePreview.hidden ||
+      event.target instanceof HTMLInputElement ||
+      event.target instanceof HTMLTextAreaElement ||
+      event.target instanceof HTMLSelectElement ||
+      event.target.isContentEditable) return;
+  if (event.key === 'ArrowLeft') {
+    event.preventDefault();
+    navigatePrivateImage(-1);
+  } else if (event.key === 'ArrowRight') {
+    event.preventDefault();
+    navigatePrivateImage(1);
+  }
+});
 
 document.querySelector('#private-image-close').addEventListener('click', () => {
   privateImageDialog.close();
@@ -715,6 +762,8 @@ document.querySelector('#private-media-fullscreen').addEventListener('click', as
   }
 });
 privateImageDialog.addEventListener('close', () => {
+  currentPrivateImageIndex = -1;
+  updatePrivateImageNavigation();
   privateImagePreview.removeAttribute('src');
   privateVideoPreview.pause();
   privateVideoPreview.removeAttribute('src');

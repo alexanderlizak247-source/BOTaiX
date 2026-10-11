@@ -431,9 +431,11 @@
     <dialog class="private-image-dialog" id="private-image-dialog">
       <button class="dialog-close" id="private-image-close" type="button" aria-label="Close image preview">×</button>
       <button class="private-media-fullscreen" id="private-media-fullscreen" type="button">View full screen</button>
+      <button class="private-image-nav private-image-previous" id="private-image-previous" type="button" aria-label="Previous image" title="Previous image (Left Arrow)" hidden>‹</button>
+      <button class="private-image-nav private-image-next" id="private-image-next" type="button" aria-label="Next image" title="Next image (Right Arrow)" hidden>›</button>
       <img id="private-image-preview" alt="">
       <video id="private-video-preview" controls playsinline hidden></video>
-      <p id="private-image-title"></p>
+      <p id="private-image-title" aria-live="polite"></p>
     </dialog>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
   </body>
