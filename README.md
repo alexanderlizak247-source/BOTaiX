@@ -21,6 +21,8 @@ npm start
 
 `CHAT_API_URL` and `CHAT_MODEL` are optional; they default to the xAI endpoint and model shown. Keep the key in an environment variable—never in browser code or a checked-in file. Without `CHAT_API_KEY`, Cinima stays in local demo mode. Provider use is off until you check the opt-in box. When enabled, the current message, up to 11 recent messages from provider-backed chat, and selected character/scene details are sent through this server to the configured provider. Local demo messages are not sent. Provider errors are shown rather than replaced with scripted replies.
 
+The app server listens only on `127.0.0.1`. Imported media stays in this browser and is not sent to the chat provider; provider-backed chat sends message text and selected scene details only after explicit opt-in.
+
 ## Features
 
 - Thirteen gallery cards, including twelve mood-driven scenes and an immersive detail view

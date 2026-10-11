@@ -223,6 +223,6 @@ const server = createServer(async (request, response) => {
   }
 });
 
-server.listen(port, () => {
+server.listen(port, '127.0.0.1', () => {
   console.log(`Cinima is ready at http://localhost:${port}`);
 });
