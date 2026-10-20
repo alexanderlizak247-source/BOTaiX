@@ -342,12 +342,24 @@
               <div class="provider-consent">
                 <label for="provider-opt-in"><input id="provider-opt-in" type="checkbox" disabled> Use a configured external AI for replies</label>
                 <p id="provider-status" role="status" aria-live="polite">Checking server configuration…</p>
+                <label class="provider-choice" for="provider-choice">Provider
+                  <select id="provider-choice" disabled>
+                    <option value="">No provider configured</option>
+                  </select>
+                </label>
+              </div>
+              <div class="chat-starters" role="group" aria-label="Suggested conversation starters">
+                <span>TRY A DIRECTION</span>
+                <button type="button" data-chat-starter="Choose a song for us and set the mood.">Set the mood</button>
+                <button type="button" data-chat-starter="Tell me a surprising little story.">Tell me a story</button>
+                <button type="button" data-chat-starter="Surprise me with a cozy scene.">Surprise me</button>
               </div>
               <form class="chat-form" id="chat-form">
                 <label class="visually-hidden" for="scene-prompt">Chat with your companion</label>
                 <input id="scene-prompt" type="text" maxlength="500" placeholder="Say anything: ask her something, flirt, or start a scene…" autocomplete="off" required>
                 <button type="submit" aria-label="Send message">↑</button>
               </form>
+              <p class="chat-response-status" id="chat-response-status" role="status" aria-live="polite" hidden>Waiting for your AI reply…</p>
               <p class="chat-hint">No menu or setup needed. Write naturally; she’ll follow your lead.</p>
               <p class="simulation-disclaimer">Local demo is the default, with open-ended playful replies. When enabled, your message, up to 11 recent AI-chat messages, and selected character/scene details go to the server-configured provider. All characters are fictional adults (25+).</p>
             </div>

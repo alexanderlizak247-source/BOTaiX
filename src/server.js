@@ -8,8 +8,32 @@ const maxBodyBytes = 16 * 1024;
 const maxMessages = 12;
 const maxMessageLength = 2000;
 const maxConversationLength = 8000;
-const providerUrl = process.env.CHAT_API_URL || 'https://api.x.ai/v1/chat/completions';
-const providerModel = process.env.CHAT_MODEL || 'grok-3-mini';
+const providerDefinitions = {
+  openai: {
+    label: 'ChatGPT',
+    apiKey: process.env.OPENAI_API_KEY,
+    url: process.env.OPENAI_API_URL || 'https://api.openai.com/v1/chat/completions',
+    model: process.env.OPENAI_MODEL || 'gpt-6-luna'
+  },
+  anthropic: {
+    label: 'Claude',
+    apiKey: process.env.ANTHROPIC_API_KEY,
+    url: process.env.ANTHROPIC_API_URL || 'https://api.anthropic.com/v1/messages',
+    model: process.env.ANTHROPIC_MODEL || 'claude-haiku-5-5'
+  },
+  xai: {
+    label: 'Grok',
+    apiKey: process.env.XAI_API_KEY || process.env.CHAT_XAI_API_KEY ||
+      (process.env.CHAT_PROVIDER === 'xai' || !process.env.CHAT_PROVIDER ? process.env.CHAT_API_KEY : ''),
+    url: process.env.XAI_API_URL ||
+      ((process.env.CHAT_PROVIDER === 'xai' || !process.env.CHAT_PROVIDER) && process.env.CHAT_API_URL) ||
+      'https://api.x.ai/v1/chat/completions',
+    model: process.env.XAI_MODEL ||
+      ((process.env.CHAT_PROVIDER === 'xai' || !process.env.CHAT_PROVIDER) && process.env.CHAT_MODEL) ||
+      'grok-4.7'
+  }
+};
+const providerOrder = ['openai', 'anthropic', 'xai'];
 const assets = {
   '/': ['../public/index.html', 'text/html; charset=utf-8'],
   '/index.html': ['../public/index.html', 'text/html; charset=utf-8'],
@@ -18,6 +42,17 @@ const assets = {
   '/images/moonlit-guardian.jpg': ['../public/images/moonlit-guardian.jpg', 'image/jpeg']
 };
 const port = Number(process.env.PORT || 3000);
+
+function getConfiguredProviders() {
+  return providerOrder.filter((provider) => providerDefinitions[provider].apiKey);
+}
+
+function getDefaultProvider(configuredProviders = getConfiguredProviders()) {
+  const requestedProvider = process.env.CHAT_PROVIDER;
+  if (configuredProviders.includes(requestedProvider)) return requestedProvider;
+  if (configuredProviders.includes('xai')) return 'xai';
+  return configuredProviders[0] || 'xai';
+}
 
 function sendJson(response, status, payload) {
   response.writeHead(status, {
@@ -35,6 +70,7 @@ async function readJsonBody(request) {
   for await (const chunk of request) {
     size += chunk.length;
     if (size > maxBodyBytes) {
+      // Stop collecting as soon as the limit is crossed to bound memory per request.
       const error = new Error('Request body is too large');
       error.status = 413;
       throw error;
@@ -72,6 +108,9 @@ function validateChatPayload(payload) {
   if (payload.messages[payload.messages.length - 1].role !== 'user') {
     return 'The latest chat message must be from you.';
   }
+  if (payload.provider !== undefined && !providerOrder.includes(payload.provider)) {
+    return 'Choose a supported AI provider.';
+  }
   if (payload.context !== undefined) {
     if (!payload.context || typeof payload.context !== 'object' || Array.isArray(payload.context) ||
         Object.values(payload.context).some((value) =>
@@ -81,6 +120,46 @@ function validateChatPayload(payload) {
     }
   }
   return null;
+}
+
+function makeProviderRequest(provider, messages, context) {
+  const config = providerDefinitions[provider];
+  const systemPrompt = makeSystemPrompt(context);
+  const headers = { 'Content-Type': 'application/json' };
+  let body;
+
+  if (provider === 'anthropic') {
+    headers['x-api-key'] = config.apiKey;
+    headers['anthropic-version'] = '2023-06-01';
+    body = {
+      model: config.model,
+      system: systemPrompt,
+      messages,
+      max_tokens: 600
+    };
+  } else {
+    headers.Authorization = `Bearer ${config.apiKey}`;
+    body = {
+      model: config.model,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        ...messages
+      ],
+      [provider === 'openai' ? 'max_completion_tokens' : 'max_tokens']: 600
+    };
+  }
+
+  return { url: config.url, headers, body };
+}
+
+function readProviderReply(provider, result) {
+  if (provider === 'anthropic') {
+    return result?.content
+      ?.filter((block) => block.type === 'text')
+      .map((block) => block.text)
+      .join('\n');
+  }
+  return result?.choices?.[0]?.message?.content;
 }
 
 function makeSystemPrompt(context = {}) {
@@ -127,33 +206,30 @@ async function handleChat(request, response) {
     sendJson(response, 400, { error: validationError });
     return;
   }
-  const apiKey = process.env.CHAT_API_KEY;
-  if (!apiKey) {
-    sendJson(response, 503, { error: 'No AI provider is configured. Local demo mode is still available.' });
+  const configuredProviders = getConfiguredProviders();
+  const provider = payload.provider || getDefaultProvider(configuredProviders);
+  const config = providerDefinitions[provider];
+  if (!config.apiKey) {
+    sendJson(response, 503, {
+      error: configuredProviders.length
+        ? `${config.label} is not configured. Choose an available provider or use local demo mode.`
+        : 'No AI provider is configured. Local demo mode is still available.'
+    });
     return;
   }
 
   let providerResponse;
   try {
-    providerResponse = await fetch(providerUrl, {
+    const providerRequest = makeProviderRequest(provider, payload.messages, payload.context);
+    providerResponse = await fetch(providerRequest.url, {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: providerModel,
-        messages: [
-          { role: 'system', content: makeSystemPrompt(payload.context) },
-          ...payload.messages
-        ],
-        max_tokens: 600
-      }),
+      headers: providerRequest.headers,
+      body: JSON.stringify(providerRequest.body),
       signal: AbortSignal.timeout(25000)
     });
   } catch (error) {
     const timedOut = error.name === 'TimeoutError';
-    console.warn(`Configured AI provider request ${timedOut ? 'timed out' : 'failed'}.`);
+    console.warn(`${config.label} request ${timedOut ? 'timed out' : 'failed'}.`);
     sendJson(response, 502, {
       error: timedOut
         ? 'The AI provider took too long to respond. Please try again.'
@@ -163,8 +239,8 @@ async function handleChat(request, response) {
   }
 
   if (!providerResponse.ok) {
-    console.warn(`Configured AI provider returned HTTP ${providerResponse.status}.`);
-    sendJson(response, 502, { error: 'The configured AI provider could not complete this reply.' });
+    console.warn(`${config.label} returned HTTP ${providerResponse.status}.`);
+    sendJson(response, 502, { error: `${config.label} could not complete this reply.` });
     return;
   }
 
@@ -175,9 +251,9 @@ async function handleChat(request, response) {
     sendJson(response, 502, { error: 'The configured AI provider returned an unreadable response.' });
     return;
   }
-  const reply = result?.choices?.[0]?.message?.content;
+  const reply = readProviderReply(provider, result);
   if (typeof reply !== 'string' || !reply.trim()) {
-    sendJson(response, 502, { error: 'The configured AI provider returned no text reply.' });
+    sendJson(response, 502, { error: `${config.label} returned no text reply.` });
     return;
   }
   sendJson(response, 200, { reply: reply.trim() });
@@ -192,7 +268,14 @@ const server = createServer(async (request, response) => {
       sendJson(response, 405, { error: 'Use GET to check provider availability.' });
       return;
     }
-    sendJson(response, 200, { providerConfigured: Boolean(process.env.CHAT_API_KEY) });
+    const configuredProviders = getConfiguredProviders();
+    sendJson(response, 200, {
+      providers: configuredProviders.map((provider) => ({
+        id: provider,
+        label: providerDefinitions[provider].label
+      })),
+      defaultProvider: getDefaultProvider(configuredProviders)
+    });
     return;
   }
   if (pathname === '/api/chat') {
