@@ -21,6 +21,10 @@ npm start
 
 `CHAT_API_URL` and `CHAT_MODEL` are optional; they default to the xAI endpoint and model shown. Keep the key in an environment variable—never in browser code or a checked-in file. Without `CHAT_API_KEY`, Cinima stays in local demo mode. Provider use is off until you check the opt-in box. When enabled, the current message, up to 11 recent messages from provider-backed chat, and selected character/scene details are sent through this server to the configured provider. Local demo messages are not sent. Provider errors are shown rather than replaced with scripted replies.
 
+## Download
+
+Grab the latest `cinima-private-gallery-*.zip` from the repository's Releases page, unzip it, and run `start.bat` (Windows) or `./start.sh` (macOS/Linux). Node.js 18+ is required. Maintainers can build the zip locally with `npm run package` (Node 22+), which writes to `dist/`.
+
 ## Features
 
 - Thirteen gallery cards, including twelve mood-driven scenes and an immersive detail view
