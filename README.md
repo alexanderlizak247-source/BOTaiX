@@ -23,6 +23,10 @@ npm start
 
 The app server listens only on `127.0.0.1`. Imported media stays in this browser and is not sent to the chat provider; provider-backed chat sends message text and selected scene details only after explicit opt-in.
 
+## Download
+
+Grab the latest `cinima-private-gallery-*.zip` from the repository's Releases page, unzip it, and run `start.bat` (Windows) or `./start.sh` (macOS/Linux). Node.js 18+ is required. Maintainers can build the zip locally with `npm run package` (Node 22+), which writes to `dist/`.
+
 ## Features
 
 - Thirteen gallery cards, including twelve mood-driven scenes and an immersive detail view
