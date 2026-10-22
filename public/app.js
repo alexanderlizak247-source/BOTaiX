@@ -42,8 +42,9 @@ const favoriteIds = new Set(readFavorites());
 let activeFilter = 'All';
 let selectedScene = null;
 let toastTimer;
-let providerAvailable = false;
+let availableProviders = [];
 const providerOptIn = document.querySelector('#provider-opt-in');
+const providerChoice = document.querySelector('#provider-choice');
 const enhancedPacing = document.querySelector('#enhanced-pacing');
 const teasingMode = document.querySelector('#teasing-mode');
 const providerBadge = document.querySelector('#provider-badge');
@@ -471,6 +472,7 @@ async function backUpPrivateMedia() {
         .replace(/[<>:"/\\|?*\u0000-\u001f]/g, '_')
         .replace(/[. ]+$/g, '')
         .slice(0, 80) || 'Private media';
+      // Keep same-named media distinct while using a filename accepted across platforms.
       const fileName = `${safeName} (${record.id}).${getBackupExtension(record)}`;
       try {
         const file = await directory.getFileHandle(fileName, { create: true });
@@ -525,6 +527,7 @@ function formatFileSize(size) {
 
 async function renderPrivateImages() {
   const images = await readPrivateImages();
+  // Revoke the previous render's object URLs before creating replacements.
   for (const url of privateImageUrls.values()) URL.revokeObjectURL(url);
   privateImageUrls.clear();
   privateImageGrid.replaceChildren();
@@ -802,8 +805,9 @@ document.querySelector('#randomize-button').addEventListener('click', () => {
 });
 
 function updateProviderModeIndicator() {
-  providerBadge.textContent = providerOptIn.checked && providerAvailable
-    ? 'EXTERNAL AI · OPTED IN'
+  const selectedProvider = providerChoice.selectedOptions[0]?.textContent;
+  providerBadge.textContent = providerOptIn.checked && availableProviders.length
+    ? `${selectedProvider || 'EXTERNAL AI'} · OPTED IN`
     : 'LOCAL DEMO';
 }
 
@@ -812,13 +816,25 @@ async function loadProviderStatus() {
     const response = await fetch('/api/config', { cache: 'no-store' });
     if (!response.ok) throw new Error('Provider status is unavailable.');
     const config = await response.json();
-    providerAvailable = config.providerConfigured === true;
-    providerOptIn.disabled = !providerAvailable;
-    providerStatus.textContent = providerAvailable
-      ? 'Available when enabled. Your message, recent AI-chat messages, and selected scene details will be sent to the server-configured provider.'
+    availableProviders = Array.isArray(config.providers) ? config.providers : [];
+    providerChoice.replaceChildren();
+    for (const provider of availableProviders) {
+      const option = document.createElement('option');
+      option.value = provider.id;
+      option.textContent = provider.label;
+      providerChoice.append(option);
+    }
+    if (availableProviders.some((provider) => provider.id === config.defaultProvider)) {
+      providerChoice.value = config.defaultProvider;
+    }
+    providerChoice.disabled = !availableProviders.length;
+    providerOptIn.disabled = !availableProviders.length;
+    providerStatus.textContent = availableProviders.length
+      ? `Available when enabled. Your message, recent AI-chat messages, and selected scene details will be sent to ${providerChoice.selectedOptions[0].textContent}.`
       : 'No provider configured. Replies stay in local demo mode.';
   } catch (error) {
     providerOptIn.disabled = true;
+    providerChoice.disabled = true;
     providerStatus.textContent = 'Provider status could not be checked. Local demo remains available; external AI is disabled.';
     console.warn('Could not check AI provider status:', error);
   }
@@ -826,6 +842,12 @@ async function loadProviderStatus() {
 }
 
 providerOptIn.addEventListener('change', updateProviderModeIndicator);
+providerChoice.addEventListener('change', () => {
+  providerConversation.length = 0;
+  updateProviderModeIndicator();
+  const label = providerChoice.selectedOptions[0]?.textContent || 'the selected provider';
+  providerStatus.textContent = `When enabled, your message, recent ${label} chat messages, and selected scene details will be sent to ${label}.`;
+});
 
 let studioFormat = 'image';
 const studioModeNote = document.querySelector('#studio-mode-note');
@@ -959,6 +981,7 @@ document.querySelector('#chat-form').addEventListener('submit', async (event) =>
   event.preventDefault();
   const input = document.querySelector('#scene-prompt');
   const sendButton = event.currentTarget.querySelector('button[type="submit"]');
+  const responseStatus = document.querySelector('#chat-response-status');
   const request = input.value.trim();
   if (!request) return;
   addChatMessage(request, 'user');
@@ -970,7 +993,9 @@ document.querySelector('#chat-form').addEventListener('submit', async (event) =>
 
   sendButton.disabled = true;
   input.disabled = true;
+  responseStatus.hidden = false;
   const userMessage = { role: 'user', content: request };
+  // Only provider-backed turns are retained, capped to fit the server's 12-message limit.
   const messages = [
     ...providerConversation.slice(-11),
     userMessage
@@ -982,6 +1007,7 @@ document.querySelector('#chat-form').addEventListener('submit', async (event) =>
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        provider: providerChoice.value,
         messages,
         context: {
           characterName: appearanceControls.name.value.trim() || 'Cinima',
@@ -1007,8 +1033,17 @@ document.querySelector('#chat-form').addEventListener('submit', async (event) =>
   } finally {
     sendButton.disabled = false;
     input.disabled = false;
+    responseStatus.hidden = true;
     input.focus();
   }
+});
+
+document.querySelectorAll('[data-chat-starter]').forEach((button) => {
+  button.addEventListener('click', () => {
+    const input = document.querySelector('#scene-prompt');
+    input.value = button.dataset.chatStarter;
+    input.focus();
+  });
 });
 
 document.querySelector('#scene-mode').addEventListener('change', updateCompanion);
